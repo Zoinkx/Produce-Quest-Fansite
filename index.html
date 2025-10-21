@@ -203,22 +203,52 @@
       logoImg: document.getElementById('logoImg'),
       backBtn: document.getElementById('backBtn')
     };
+    
+    // Map Round 2 team to the Training Camp Evaluation performance link
+    const campEvalByTeam = {
+      'Team A': 'https://www.youtube.com/watch?v=gSh4oCu5eyE&t=4040',
+      'Team B': 'https://www.youtube.com/watch?v=mrjl0bbR6Mo&t=4839',
+      'Team C': 'https://www.youtube.com/watch?v=ge8q9dJWS58&t=2986',
+      'Team D': 'https://www.youtube.com/watch?v=Lj6aYSKsi3M&t=4909',
+      'Team E': 'https://www.youtube.com/watch?v=Fp_BGCQhTQ4&t=4603',
+      'Team F': 'https://www.youtube.com/watch?v=_0nkWpDEQ60&t=4750'
+    };
+
 
     const slugify = s => (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
-    const toEmbed = url => { 
-      if(!url) return null; 
-      try { 
-        const u=new URL(url); 
-        if(u.hostname.includes('youtube.com')){ 
-          if(u.searchParams.get('v')) return `https://www.youtube.com/embed/${u.searchParams.get('v')}?rel=0`; 
-          return url; 
-        } 
-        if(u.hostname.includes('youtu.be')){ 
-          const id=u.pathname.replace('/',''); 
-          return `https://www.youtube.com/embed/${id}?rel=0`; 
-        } 
-      } catch(e){} 
-      return url; 
+    const toEmbed = url => {
+      if (!url) return null;
+      try {
+        const u = new URL(url);
+        const parseT = (t) => {
+          if (!t) return 0;
+          if (/^\d+$/.test(t)) return parseInt(t, 10);
+          let s = 0;
+          const h = t.match(/(\d+)h/), m = t.match(/(\d+)m/), ss = t.match(/(\d+)s/);
+          if (h) s += parseInt(h[1], 10) * 3600;
+          if (m) s += parseInt(m[1], 10) * 60;
+          if (ss) s += parseInt(ss[1], 10);
+          return s;
+        };
+        if (u.hostname.includes('youtube.com')) {
+          const id = u.searchParams.get('v');
+          if (id) {
+            const startSec = parseT(u.searchParams.get('t'));
+            const params = new URLSearchParams({ rel: '0' });
+            if (startSec > 0) params.set('start', String(startSec));
+            return `https://www.youtube.com/embed/${id}?${params.toString()}`;
+          }
+          return url;
+        }
+        if (u.hostname.includes('youtu.be')) {
+          const id = u.pathname.replace('/', '');
+          const startSec = parseT(u.searchParams.get('t'));
+          const params = new URLSearchParams({ rel: '0' });
+          if (startSec > 0) params.set('start', String(startSec));
+          return `https://www.youtube.com/embed/${id}?${params.toString()}`;
+        }
+      } catch (e) {}
+      return url;
     };
     function parseRound2(rec){ 
       let team=rec.round2_team||''; 
@@ -286,7 +316,13 @@
       const age=computeAge(c.birthday); 
       const pr=toEmbed(c.pr_video); 
       const aud=toEmbed(c.audition_video);
-      const videos = [aud && {title:'Audition', src:aud}, pr && {title:'1-Minute PR', src:pr}].filter(Boolean);
+      const teamEvalRaw = campEvalByTeam[team];
+      const teamEval = toEmbed(teamEvalRaw);
+      const videos = [
+        aud && {title:'Audition', src:aud},
+        pr && {title:'1-Minute PR', src:pr},
+        (team && teamEval) && {title:`2.5th Stage Training Camp Evaluation — ${team}`, src:teamEval}
+      ].filter(Boolean);
 
       const messageBox = c.message ? `<section class='section'><div class='message-note'>${escapeHtml(c.message)}</div></section>` : '';
 
