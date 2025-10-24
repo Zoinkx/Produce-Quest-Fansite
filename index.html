@@ -149,7 +149,359 @@
 
 
 .namebox .meta { display:grid; grid-auto-flow:row; justify-items:center; gap:2px; margin-top:6px; font-size:12px; font-weight:600; color:var(--muted); line-height:1.2; }
+
+
+/* user-rating-slider */
+input[type="range"]#rate_cute,
+input[type="range"]#rate_sing,
+input[type="range"]#rate_dance,
+input[type="range"]#rate_visuals,
+input[type="range"]#rate_personality{
+  width: 220px;
+}
+.rating-inline {
+  display:flex; align-items:center; gap:8px;
+}
+/* optional vertical: add class 'vertical' to range to flip */
+input[type="range"].vertical { writing-mode: bt-lr; -webkit-appearance: slider-vertical; height: 140px; width: 24px; }
+
 </style>
+
+<style>
+/* Pastel pink theme for rating sliders */
+:root {
+  --slider-pink: #ffc5d9;    /* soft pastel pink */
+  --slider-pink-strong: #ff9fbe;
+  --slider-track: #ffe6ef;
+}
+input[type="range"]#rate_cute,
+input[type="range"]#rate_sing,
+input[type="range"]#rate_dance,
+input[type="range"]#rate_visuals,
+input[type="range"]#rate_personality {
+  accent-color: var(--slider-pink);
+  width: min(420px, 90%);
+  height: 24px;
+}
+
+/* WebKit */
+input[type="range"]#rate_cute::-webkit-slider-runnable-track,
+input[type="range"]#rate_sing::-webkit-slider-runnable-track,
+input[type="range"]#rate_dance::-webkit-slider-runnable-track,
+input[type="range"]#rate_visuals::-webkit-slider-runnable-track,
+input[type="range"]#rate_personality::-webkit-slider-runnable-track {
+  background: var(--slider-track);
+  height: 8px;
+  border-radius: 999px;
+}
+input[type="range"]#rate_cute::-webkit-slider-thumb,
+input[type="range"]#rate_sing::-webkit-slider-thumb,
+input[type="range"]#rate_dance::-webkit-slider-thumb,
+input[type="range"]#rate_visuals::-webkit-slider-thumb,
+input[type="range"]#rate_personality::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -6px; /* centers thumb on 8px track */
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: var(--slider-pink);
+  border: 2px solid var(--slider-pink-strong);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Firefox */
+input[type="range"]#rate_cute::-moz-range-track,
+input[type="range"]#rate_sing::-moz-range-track,
+input[type="range"]#rate_dance::-moz-range-track,
+input[type="range"]#rate_visuals::-moz-range-track,
+input[type="range"]#rate_personality::-moz-range-track {
+  background: var(--slider-track);
+  height: 8px;
+  border-radius: 999px;
+  border: none;
+}
+input[type="range"]#rate_cute::-moz-range-thumb,
+input[type="range"]#rate_sing::-moz-range-thumb,
+input[type="range"]#rate_dance::-moz-range-thumb,
+input[type="range"]#rate_visuals::-moz-range-thumb,
+input[type="range"]#rate_personality::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: var(--slider-pink);
+  border: 2px solid var(--slider-pink-strong);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Edge/IE (legacy) */
+input[type="range"]#rate_cute::-ms-track,
+input[type="range"]#rate_sing::-ms-track,
+input[type="range"]#rate_dance::-ms-track,
+input[type="range"]#rate_visuals::-ms-track,
+input[type="range"]#rate_personality::-ms-track {
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+  height: 8px;
+}
+input[type="range"]#rate_cute::-ms-fill-lower,
+input[type="range"]#rate_sing::-ms-fill-lower,
+input[type="range"]#rate_dance::-ms-fill-lower,
+input[type="range"]#rate_visuals::-ms-fill-lower,
+input[type="range"]#rate_personality::-ms-fill-lower {
+  background: var(--slider-track);
+  border-radius: 999px;
+}
+input[type="range"]#rate_cute::-ms-fill-upper,
+input[type="range"]#rate_sing::-ms-fill-upper,
+input[type="range"]#rate_dance::-ms-fill-upper,
+input[type="range"]#rate_visuals::-ms-fill-upper,
+input[type="range"]#rate_personality::-ms-fill-upper {
+  background: var(--slider-track);
+  border-radius: 999px;
+}
+input[type="range"]#rate_cute::-ms-thumb,
+input[type="range"]#rate_sing::-ms-thumb,
+input[type="range"]#rate_dance::-ms-thumb,
+input[type="range"]#rate_visuals::-ms-thumb,
+input[type="range"]#rate_personality::-ms-thumb {
+  background: var(--slider-pink);
+  border: 2px solid var(--slider-pink-strong);
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+}
+</style>
+
+
+<style>
+/* ---- Pastel pink sliders: higher contrast & heart-shaped thumbs ---- */
+:root{
+  --slider-pink: #ffb3cc;         /* base pastel pink (a touch deeper for contrast) */
+  --slider-pink-strong: #ff7faa;  /* accent ring/shadow */
+  --slider-track: #ffd6e5;        /* track pastel */
+  --slider-track-edge: rgba(0,0,0,0.06);
+}
+/* Remove default input white background/outline to avoid the white rectangle */
+input[type="range"]#rate_cute,
+input[type="range"]#rate_sing,
+input[type="range"]#rate_dance,
+input[type="range"]#rate_visuals,
+input[type="range"]#rate_personality{
+  -webkit-appearance: none;
+  appearance: none;
+  width: min(420px, 90%);
+  height: 28px;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  padding: 0;
+  margin: 0.35rem 0 0.8rem;
+}
+
+/* Track - WebKit */
+input[type="range"]#rate_cute::-webkit-slider-runnable-track,
+input[type="range"]#rate_sing::-webkit-slider-runnable-track,
+input[type="range"]#rate_dance::-webkit-slider-runnable-track,
+input[type="range"]#rate_visuals::-webkit-slider-runnable-track,
+input[type="range"]#rate_personality::-webkit-slider-runnable-track{
+  background: var(--slider-track);
+  height: 10px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--slider-track-edge);
+}
+
+/* Thumb as heart (SVG background) - WebKit */
+input[type="range"]#rate_cute::-webkit-slider-thumb,
+input[type="range"]#rate_sing::-webkit-slider-thumb,
+input[type="range"]#rate_dance::-webkit-slider-thumb,
+input[type="range"]#rate_visuals::-webkit-slider-thumb,
+input[type="range"]#rate_personality::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+  height: 26px;
+  width: 26px;
+  background-color: transparent;
+  border: none;
+  margin-top: -8px; /* center on 10px track */
+  box-shadow: 0 0 0 3px rgba(255,127,170,0.28);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 90% 90%;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23ff7faa' d='M12.001 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.2 2.5C11.49 5.01 13.16 4 14.9 4 17.4 4 19.4 6 19.4 8.5c0 3.78-3.4 6.86-8.15 11.54l-1.249 1.31z'/></svg>");
+  cursor: pointer;
+}
+
+/* Track/Thumb - Firefox */
+input[type="range"]#rate_cute::-moz-range-track,
+input[type="range"]#rate_sing::-moz-range-track,
+input[type="range"]#rate_dance::-moz-range-track,
+input[type="range"]#rate_visuals::-moz-range-track,
+input[type="range"]#rate_personality::-moz-range-track{
+  background: var(--slider-track);
+  height: 10px;
+  border-radius: 999px;
+  border: none;
+  box-shadow: inset 0 0 0 1px var(--slider-track-edge);
+}
+input[type="range"]#rate_cute::-moz-range-thumb,
+input[type="range"]#rate_sing::-moz-range-thumb,
+input[type="range"]#rate_dance::-moz-range-thumb,
+input[type="range"]#rate_visuals::-moz-range-thumb,
+input[type="range"]#rate_personality::-moz-range-thumb{
+  height: 26px;
+  width: 26px;
+  border: none;
+  border-radius: 0; /* heart image defines shape */
+  background-color: transparent;
+  box-shadow: 0 0 0 3px rgba(255,127,170,0.28);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 90% 90%;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23ff7faa' d='M12.001 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.2 2.5C11.49 5.01 13.16 4 14.9 4 17.4 4 19.4 6 19.4 8.5c0 3.78-3.4 6.86-8.15 11.54l-1.249 1.31z'/></svg>");
+  cursor: pointer;
+}
+
+/* Edge/IE fallback keeps circular thumb but higher contrast */
+input[type="range"]#rate_cute::-ms-track,
+input[type="range"]#rate_sing::-ms-track,
+input[type="range"]#rate_dance::-ms-track,
+input[type="range"]#rate_visuals::-ms-track,
+input[type="range"]#rate_personality::-ms-track{
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+  height: 10px;
+}
+input[type="range"]#rate_cute::-ms-fill-lower,
+input[type="range"]#rate_sing::-ms-fill-lower,
+input[type="range"]#rate_dance::-ms-fill-lower,
+input[type="range"]#rate_visuals::-ms-fill-lower,
+input[type="range"]#rate_personality::-ms-fill-lower,
+input[type="range"]#rate_cute::-ms-fill-upper,
+input[type="range"]#rate_sing::-ms-fill-upper,
+input[type="range"]#rate_dance::-ms-fill-upper,
+input[type="range"]#rate_visuals::-ms-fill-upper,
+input[type="range"]#rate_personality::-ms-fill-upper{
+  background: var(--slider-track);
+  border-radius: 999px;
+}
+input[type="range"]#rate_cute::-ms-thumb,
+input[type="range"]#rate_sing::-ms-thumb,
+input[type="range"]#rate_dance::-ms-thumb,
+input[type="range"]#rate_visuals::-ms-thumb,
+input[type="range"]#rate_personality::-ms-thumb{
+  height: 24px; width: 24px; border-radius: 50%;
+  background: var(--slider-pink);
+  border: 2px solid var(--slider-pink-strong);
+}
+
+/* Focus/hover states for accessibility */
+input[type="range"]#rate_cute:focus,
+input[type="range"]#rate_sing:focus,
+input[type="range"]#rate_dance:focus,
+input[type="range"]#rate_visuals:focus,
+input[type="range"]#rate_personality:focus{
+  outline: none;
+  filter: drop-shadow(0 0 0.15rem rgba(255,127,170,0.5));
+}
+</style>
+
+
+<style>
+/* Row layout: title on left, value on right */
+.rows .row .topline{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:6px;
+}
+.rows .row .topline .label{
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #6a6d78; /* darker than the previous grey */
+  text-transform: none; /* match size with score */
+}
+.rows .row .topline .score{
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--slider-pink-strong);
+}
+/* Remove rectangular halo: use drop-shadow instead of box-shadow */
+input[type="range"]#rate_cute::-webkit-slider-thumb,
+input[type="range"]#rate_sing::-webkit-slider-thumb,
+input[type="range"]#rate_dance::-webkit-slider-thumb,
+input[type="range"]#rate_visuals::-webkit-slider-thumb,
+input[type="range"]#rate_personality::-webkit-slider-thumb{
+  box-shadow: none !important;
+  filter: drop-shadow(0 0 3px rgba(255,127,170,0.5));
+}
+input[type="range"]#rate_cute::-moz-range-thumb,
+input[type="range"]#rate_sing::-moz-range-thumb,
+input[type="range"]#rate_dance::-moz-range-thumb,
+input[type="range"]#rate_visuals::-moz-range-thumb,
+input[type="range"]#rate_personality::-moz-range-thumb{
+  box-shadow: none !important;
+  filter: drop-shadow(0 0 3px rgba(255,127,170,0.5));
+}
+/* Tighten spacing under slider */
+.rows .row .value{ margin-bottom: 10px; }
+</style>
+
+
+<style>
+/* Improved topline layout and typography */
+.rows .row .topline{
+  display:flex;
+  align-items:baseline;
+  justify-content:flex-start;
+  gap:8px; /* small visual gap between title and value */
+  margin-bottom:6px;
+}
+.rows .row .topline .label{
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #555861;
+}
+.rows .row .topline .score{
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--slider-pink-strong);
+}
+</style>
+
+
+<style>
+/* Tighten slider spacing */
+.rows .row .value {
+  margin-bottom: 4px;
+}
+
+/* Style smaller grey subtitle */
+.section-title .subtitle {
+  font-size: 0.7em;
+  font-weight: 500;
+  color: #999;
+  margin-left: 6px;
+}
+
+/* Grid layout for 2-column slider arrangement + clear button at bottom right */
+.rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px 40px;
+  align-items: start;
+}
+#clear_this {
+  grid-column: 2;
+  justify-self: end;
+  margin-top: 4px;
+}
+</style>
+
 </head>
 <body>
   <div class='container' id='listView'>
@@ -174,7 +526,23 @@
         <option value='age-asc'>Age: Younger → Older</option>
         <option value='height-desc'>Height: Taller → Shorter</option>
         <option value='height-asc'>Height: Shorter → Taller</option>
-      </select>
+      
+      <option value="my-overall-desc">Overall: High → Low</option>
+<option value="my-overall-asc">Overall: Low → High</option>
+<option value="my-cute-desc">Cuteness: High → Low</option>
+<option value="my-cute-asc">Cuteness: Low → High</option>
+<option value="my-sing-desc">Singing: High → Low</option>
+<option value="my-sing-asc">Singing: Low → High</option>
+<option value="my-dance-desc">Dancing: High → Low</option>
+<option value="my-dance-asc">Dancing: Low → High</option>
+
+<option value="my-visuals-desc">Visuals: High → Low</option>
+<option value="my-visuals-asc">Visuals: Low → High</option>
+<option value="my-personality-desc">Personality: High → Low</option>
+<option value="my-personality-asc">Personality: Low → High</option>
+</select>
+
+
 
       <select id='teamFilter' class='select'><option value=''>All Teams</option></select>
       <label style='font-weight:700'><input id='groupByTeam' type='checkbox'/> Group by team</label>
@@ -227,6 +595,56 @@
 
 
     const slugify = s => (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+    // ---- local ratings (per visitor) ----
+const LS_KEY = 'pq_user_ratings_v1';
+
+
+
+// --- migration: scale previous 0–10 ratings to 0–100 (run once) ---
+(function(){
+  try{
+    let raw = localStorage.getItem(LS_KEY);
+    if(!raw) return;
+    let obj = JSON.parse(raw);
+    if (!obj || obj.__scaled_v2) return;
+    let changed = false;
+    for (const [k,v] of Object.entries(obj)){
+      if (k.startsWith('__')) continue;
+      if (v && typeof v==='object'){
+        const vals = ['cute','sing','dance'].map(key => (typeof v[key]==='number'? v[key]: null)).filter(x=>x!=null);
+        if (vals.length && Math.max(...vals) <= 10){
+          // scale up
+          ['cute','sing','dance'].forEach(key=>{
+            if (typeof v[key]==='number') v[key] = Math.round(v[key]*10);
+          });
+          changed = true;
+        }
+      }
+    }
+    if (changed){
+      obj.__scaled_v2 = true;
+      localStorage.setItem(LS_KEY, JSON.stringify(obj));
+      // also update in-memory object if present
+      if (typeof userRatings!=='undefined'){ userRatings = obj; }
+    }
+  }catch(e){ /* ignore */ }
+})();
+// --- end migration ---
+
+function safeParse(json, fallback){ try { return JSON.parse(json) ?? fallback; } catch { return fallback; } }
+let userRatings = safeParse(localStorage.getItem(LS_KEY), {});
+
+function saveRatings(){ localStorage.setItem(LS_KEY, JSON.stringify(userRatings)); }
+
+
+function getSlug(c){ return (c.slug || slugify(c.name)); }
+function getUserScore(slug, key){
+  const r = userRatings[slug];
+  if (!r) return null;
+  if (key==='overall') { const vals=[(r.cute??0),(r.sing??0),(r.dance??0),(r.visuals??0),(r.personality??0)]; return (vals[0]+vals[1]+vals[2]+vals[3]+vals[4])/5; }
+  return r?.[key] ?? null;
+}
+
     const toEmbed = url => {
       if (!url) return null;
       try {
@@ -302,6 +720,19 @@
         return av - bv;
       };
       switch (sortKey){
+    case 'my-overall-desc': return (a,b)=> { const get = c=>getUserScore(getSlug(c),'overall'); const av=get(a), bv=get(b); if(av==null&&bv==null)return 0; if(av==null)return 1; if(bv==null)return -1; return bv-av; };
+    case 'my-overall-asc':  return (a,b)=> { const get = c=>getUserScore(getSlug(c),'overall'); const av=get(a), bv=get(b); if(av==null&&bv==null)return 0; if(av==null)return 1; if(bv==null)return -1; return av-bv; };
+    case 'my-cute-desc':    return (a,b)=> { const get = c=>getUserScore(getSlug(c),'cute');    const av=get(a), bv=get(b); if(av==null&&bv==null)return 0; if(av==null)return 1; if(bv==null)return -1; return bv-av; };
+    case 'my-cute-asc':     return (a,b)=> { const get = c=>getUserScore(getSlug(c),'cute');    const av=get(a), bv=get(b); if(av==null&&bv==null)return 0; if(av==null)return 1; if(bv==null)return -1; return av-bv; };
+    case 'my-sing-desc':    return (a,b)=> { const get = c=>getUserScore(getSlug(c),'sing');    const av=get(a), bv=get(b); if(av==null&&bv==null)return 0; if(av==null)return 1; if(bv==null)return -1; return bv-av; };
+    case 'my-sing-asc':     return (a,b)=> { const get = c=>getUserScore(getSlug(c),'sing');    const av=get(a), bv=get(b); if(av==null&&bv==null)return 0; if(av==null)return 1; if(bv==null)return -1; return av-bv; };
+    case 'my-dance-desc':   return (a,b)=> { const get = c=>getUserScore(getSlug(c),'dance');   const av=get(a), bv=get(b); if(av==null&&bv==null)return 0; if(av==null)return 1; if(bv==null)return -1; return bv-av; };
+    case 'my-dance-asc':    return (a,b)=> { const get = c=>getUserScore(getSlug(c),'dance');   const av=get(a), bv=get(b); if(av==null&&bv==null)return 0; if(av==null)return 1; if(bv==null)return -1; return av-bv; };
+case 'my-visuals-desc': return (a,b)=> { const get = c=>getUserScore(getSlug(c),'visuals'); const av=get(a), bv=get(b); if(av==null&&bv==null)return 0; if(av==null)return 1; if(bv==null)return -1; return bv-av; };
+case 'my-visuals-asc':  return (a,b)=> { const get = c=>getUserScore(getSlug(c),'visuals'); const av=get(a), bv=get(b); if(av==null&&bv==null)return 0; if(av==null)return 1; if(bv==null)return -1; return av-bv; };
+case 'my-personality-desc': return (a,b)=> { const get = c=>getUserScore(getSlug(c),'personality'); const av=get(a), bv=get(b); if(av==null&&bv==null)return 0; if(av==null)return 1; if(bv==null)return -1; return bv-av; };
+case 'my-personality-asc':  return (a,b)=> { const get = c=>getUserScore(getSlug(c),'personality'); const av=get(a), bv=get(b); if(av==null&&bv==null)return 0; if(av==null)return 1; if(bv==null)return -1; return av-bv; };
+    
         case 'age-desc':    return (a,b)=> desc(ageOf)(a,b) || byName(a,b);
         case 'age-asc':     return (a,b)=>  asc(ageOf)(a,b) || byName(a,b);
         case 'height-desc': return (a,b)=> desc(hOf)(a,b)   || byName(a,b);
@@ -335,9 +766,33 @@
         mode = 'hint';
       }
 
-      let meta = '';
+      
+let meta = '';
       if (mode === 'group') {
         const parts = [];
+        // If sorting by a user rating category, show that as the first line in the meta
+        if (sortKey.startsWith('my-')) {
+          const slug = (c.slug||slugify(c.name));
+          const key = sortKey.includes('overall') ? 'overall' :
+                      sortKey.includes('cute')        ? 'cute'        :
+                      sortKey.includes('sing')        ? 'sing'        :
+                      sortKey.includes('dance')       ? 'dance'       :
+                      sortKey.includes('visuals')     ? 'visuals'     :
+                      sortKey.includes('personality') ? 'personality' : null;
+          if (key){
+            const val = getUserScore(slug, key);
+            if (val != null){
+              const label = key==='overall' ? 'Overall' :
+                            key==='cute'        ? 'Cuteness' :
+                            key==='sing'        ? 'Singing'  :
+                            key==='dance'       ? 'Dancing'  :
+                            key==='visuals'     ? 'Visuals'  :
+                            'Personality';
+              parts.push(`${label}: ${Math.round(+val)}/100`);
+            }
+          }
+        }
+        // Then append the default group details
         if (age !== '') parts.push(`Age: ${age}`);
         if (c.birthday) parts.push(`${c.birthday}`);
         if (c.height_cm) parts.push(`${c.height_cm} cm`);
@@ -351,13 +806,32 @@
           if (age !== '') hint = `Age: ${age}`;
         } else if (sortKey === 'height-desc' || sortKey === 'height-asc') {
           if (c.height_cm) hint = `Height: ${c.height_cm} cm`;
+        } else if (sortKey.startsWith('my-')) {
+          const slug = (c.slug||slugify(c.name));
+          const key = sortKey.includes('overall') ? 'overall' :
+                      sortKey.includes('cute')        ? 'cute'        :
+                      sortKey.includes('sing')        ? 'sing'        :
+                      sortKey.includes('dance')       ? 'dance'       :
+                      sortKey.includes('visuals')     ? 'visuals'     :
+                      sortKey.includes('personality') ? 'personality' : null;
+          if (key){
+            const val = getUserScore(slug, key);
+            if (val != null){
+              const label = key==='overall' ? 'Overall' :
+                            key==='cute'        ? 'Cuteness' :
+                            key==='sing'        ? 'Singing'  :
+                            key==='dance'       ? 'Dancing'  :
+                            key==='visuals'     ? 'Visuals'  :
+                            'Personality';
+              hint = `${label}: ${Math.round(+val)}/100`;
+            }
+          }
         }
         if (hint) {
           meta = `<div class="meta"><div>${hint}</div></div>`;
         }
-      }
-
-      return `
+      
+      }return `
         <a class="card" href="#/member/${slug}" aria-label="Open profile of ${c.name}">
           <img class="avatar" src="${c.image || ''}" alt="${c.name}" loading="lazy" />
           <div class="namebox">
@@ -417,7 +891,68 @@ function cardHTMLWrap(list, cls){ return '<div class="grid '+cls+'">'+list.map(c
         (team && teamEval) && {title:`2.5th Stage Training Camp Evaluation — ${team}`, src:teamEval}
       ].filter(Boolean);
 
-      const messageBox = c.message ? `<section class='section'><div class='message-note'>${escapeHtml(c.message)}</div></section>` : '';
+      const slugKey = (c.slug||slugify(c.name));
+  const current = userRatings[slugKey] || { cute: 0, sing: 0, dance: 0, visuals: 0, personality: 0 };
+  
+
+const ratingsBox = `
+  <section class='section box'>
+    <h3 class='section-title'>My Ratings <span class='subtitle'>(saved on this device)</span></h3>
+    <div class='rows'>
+      <div class='row'>
+        <div class='topline'>
+          <label class='label'>Cuteness</label>
+          <div class='score'><span id='rate_cute_val'>${current.cute ?? 0}</span>/100</div>
+        </div>
+        <div class='value'>
+          <input id='rate_cute' type='range' min='0' max='100' step='1' value='${current.cute ?? 0}' />
+        </div>
+      </div>
+      <div class='row'>
+        <div class='topline'>
+          <label class='label'>Singing</label>
+          <div class='score'><span id='rate_sing_val'>${current.sing ?? 0}</span>/100</div>
+        </div>
+        <div class='value'>
+          <input id='rate_sing' type='range' min='0' max='100' step='1' value='${current.sing ?? 0}' />
+        </div>
+      </div>
+      <div class='row'>
+        <div class='topline'>
+          <label class='label'>Dancing</label>
+          <div class='score'><span id='rate_dance_val'>${current.dance ?? 0}</span>/100</div>
+        </div>
+        <div class='value'>
+          <input id='rate_dance' type='range' min='0' max='100' step='1' value='${current.dance ?? 0}' />
+        </div>
+      </div>
+      <div class='row'>
+        <div class='topline'>
+          <label class='label'>Visuals</label>
+          <div class='score'><span id='rate_visuals_val'>${current.visuals ?? 0}</span>/100</div>
+        </div>
+        <div class='value'>
+          <input id='rate_visuals' type='range' min='0' max='100' step='1' value='${current.visuals ?? 0}' />
+        </div>
+      </div>
+      <div class='row'>
+        <div class='topline'>
+          <label class='label'>Personality</label>
+          <div class='score'><span id='rate_personality_val'>${current.personality ?? 0}</span>/100</div>
+        </div>
+        <div class='value'>
+          <input id='rate_personality' type='range' min='0' max='100' step='1' value='${current.personality ?? 0}' />
+        </div>
+      </div>
+    </div>
+    <div style='margin-top:10px;display:flex;gap:8px;'>
+      <button id='clear_this' class='pill' type='button'>Clear this member</button>
+    </div>
+  </section>
+  `;
+
+
+const messageBox = c.message ? `<section class='section'><div class='message-note'>${escapeHtml(c.message)}</div></section>` : '';
 
       els.detailCard.innerHTML = `
         <section class='headergrid'>
@@ -467,8 +1002,57 @@ function cardHTMLWrap(list, cls){ return '<div class="grid '+cls+'">'+list.map(c
           </div>
         </section>
 
+        ${ratingsBox}
         ${videos.length ? `<section class='videos'>${videos.map(v => video(v.title, v.src)).join('')}</section>` : ''}
       `;
+// Wire up rating inputs
+      (function(){
+        const slugKey2 = (c.slug||slugify(c.name));
+        const cute = document.getElementById('rate_cute');
+        const sing = document.getElementById('rate_sing');
+        const dance = document.getElementById('rate_dance');
+        const visuals = document.getElementById('rate_visuals');
+        const personality = document.getElementById('rate_personality');
+        const cuteVal = document.getElementById('rate_cute_val');
+        const singVal = document.getElementById('rate_sing_val');
+        const danceVal = document.getElementById('rate_dance_val');
+        const visualsVal = document.getElementById('rate_visuals_val');
+        const personalityVal = document.getElementById('rate_personality_val');
+        const clearBtn = document.getElementById('clear_this');
+
+        function commit(){
+          userRatings[slugKey2] = {
+            cute: Number(cute?.value) || 0,
+            sing: Number(sing?.value) || 0,
+            dance: Number(dance?.value) || 0,
+            visuals: Number(visuals?.value) || 0,
+            personality: Number(personality?.value) || 0
+          };
+          saveRatings();
+          renderList();
+        }
+
+        [cute, sing, dance, visuals, personality].forEach(inp=>{
+          if (!inp) return;
+          inp.addEventListener('input', ()=>{
+            if (inp===cute) cuteVal.textContent = Math.round(inp.value);
+            if (inp===sing) singVal.textContent = Math.round(inp.value);
+            if (inp===dance) danceVal.textContent = Math.round(inp.value);
+            if (inp===visuals) visualsVal.textContent = Math.round(inp.value);
+            if (inp===personality) personalityVal.textContent = Math.round(inp.value);
+          });
+          inp.addEventListener('change', commit);
+        });
+        if (clearBtn){
+          clearBtn.addEventListener('click', ()=>{
+            delete userRatings[slugKey2];
+            saveRatings();
+            onHash();
+            renderList();
+          });
+        }
+      })();
+
     }
 
     // ---- routing & events ----
