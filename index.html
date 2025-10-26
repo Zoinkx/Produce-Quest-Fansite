@@ -726,7 +726,24 @@ input[type="range"]#rate_personality::-moz-range-thumb{
       filtered: [], groupByTeam: false, team: '', q: '',
       statusFilter: 'all', showStatus: false,
       sortKey: 'name', sortDir: 'asc' // default Low→High (A→Z for Name)
+    }
+    // --- Flexible team video mapping (Evaluation 3 etc.) ---
+    const teamVideos = {
+      'Team A': {
+        title: 'Re:Start!!!!! - Snow halation',
+        url: 'https://www.youtube.com/watch?v=hXsY0U9zZuA'
+      }
+      // Add more teams here later, e.g.:
+      // ,'Team B': { title: 'Some Title', url: 'https://www.youtube.com/watch?v=XXXXXXXXXXX' }
     };
+
+    function ytToEmbed(u){
+      if(!u) return '';
+      const m = u.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+      const id = m ? m[1] : '';
+      return id ? ('https://www.youtube.com/embed/' + id) : '';
+    }
+;
 
     const els = {
       listView: document.getElementById('listView'),
@@ -980,7 +997,22 @@ input[type="range"]#rate_personality::-moz-range-thumb{
         els.gridWrap.innerHTML = order.map(team=>'<section class="team-section"><h2 class="team-heading">'+team+'</h2>'+cardHTMLWrap(groups[team], 'five')+'</section>').join('');
       } else {
         const cls = teamF ? 'five' : 'four';
-        els.gridWrap.innerHTML = cardHTMLWrap(filtered, cls);
+        let html = cardHTMLWrap(filtered, cls);
+
+        // If a specific team is selected in the dropdown, append that team's video (if defined).
+        if (state.team) {
+          const tv = teamVideos[state.team];
+          if (tv) {
+            const embed = ytToEmbed(tv.url);
+            if (embed) {
+              html += '<section class="videos" style="margin-top: 8px;">' + 
+                      video(tv.title, embed) + 
+                      '</section>';
+            }
+          }
+        }
+
+        els.gridWrap.innerHTML = html;
       }
     }
 
