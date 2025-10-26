@@ -532,7 +532,7 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 
 
 /* Make room for the extra button */
-.controls{ grid-template-columns: 1fr auto auto auto auto; }
+.controls{ grid-template-columns: 0.85fr auto auto auto auto auto auto; }
 @media (max-width: 860px){ .controls{ grid-template-columns: 1fr; } }
 
 </style>
@@ -626,6 +626,35 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 }
 </style>
 
+
+<style>
+/* --- Status tagging styles --- */
+/* Gray out ONLY the profile image for eliminated contestants when Status is shown */
+.card.status-out .namebox { filter:none; opacity:1; }
+/* Try common selectors for the image container */
+.card.status-out .avatar img,
+.card.status-out img {
+  filter: grayscale(1);
+  opacity: .65;
+  transition: filter .2s ease, opacity .2s ease;
+}
+/* On hover, bring the image back to color */
+.card.status-out:hover .avatar img,
+.card.status-out:hover img {
+  filter: none;
+  opacity: 1;
+}
+
+.namebox .pill-elim {
+  display:inline-block; margin-left:8px; padding:2px 8px;
+  font-size:11px; font-weight:800; color:#9a375e;
+  background:#ffe3f0; border:1px solid #f3c2d7; border-radius:999px;
+}
+
+.namebox .pill-elim { display:block; margin-left:0; margin-top:4px; }
+
+</style>
+
 </head>
 <body>
   <div class="container" id="listView">
@@ -655,11 +684,19 @@ input[type="range"]#rate_personality::-moz-range-thumb{
         <option value="my-dance">Dancing</option>
         <option value="my-visuals">Visuals</option>
         <option value="my-personality">Personality</option>
+      
+        <option value="status">Status</option>
       </select>
       <button id="sortDirBtn" class="order-btn" type="button" aria-label="Toggle sort order" title="Sort order">
         <span class="ico" id="sortDirIco">A→Z</span>
       </button>
       <select id="teamFilter" class="select"><option value="">All Teams</option></select>
+      <select id="statusFilter" class="select" aria-label="Filter by status">
+        <option value="all">All</option>
+        <option value="in">Still in</option>
+        <option value="out">Eliminated</option>
+      </select>
+      <label style="font-weight:700"><input id="showStatusTag" type="checkbox"/> Status</label>
       <label style="font-weight:700"><input id="groupByTeam" type="checkbox"/> Group by team</label>
     </section>
 
@@ -687,6 +724,7 @@ input[type="range"]#rate_personality::-moz-range-thumb{
     const state = {
       data: JSON.parse(document.getElementById('contestantsData').textContent),
       filtered: [], groupByTeam: false, team: '', q: '',
+      statusFilter: 'all', showStatus: false,
       sortKey: 'name', sortDir: 'asc' // default Low→High (A→Z for Name)
     };
 
@@ -702,7 +740,9 @@ input[type="range"]#rate_personality::-moz-range-thumb{
       backBtn: document.getElementById('backBtn'),
       sortKey: document.getElementById('sortKey'),
       sortDirBtn: document.getElementById('sortDirBtn'),
-      sortDirIco: document.getElementById('sortDirIco')
+      sortDirIco: document.getElementById('sortDirIco'),
+      statusFilter: document.getElementById('statusFilter'),
+      showStatusTag: document.getElementById('showStatusTag')
     };
 
     const campEvalByTeam = {
@@ -720,6 +760,11 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 
     const slugify = s => (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
     const LS_KEY = 'pq_user_ratings_v1';
+
+    // Eliminated list (from Eliminated.txt)
+    const ELIMINATED_NAMES = ["Nasuzu Koyama", "Aimi Sato", "Ren Kawakita", "Kohime Nozaki", "Ruri Enomoto", "Ruka Sato", "Yuu Seto", "Aira Shikano", "Arisu Kawamatsu", "Aimi Horinouchi", "Fuuka Nagaike", "Kaede Mori"];
+    const ELIMINATED = new Set(ELIMINATED_NAMES.map(n => (n||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')));
+
 
     if(state.data.logo_url) els.logoImg.src = state.data.logo_url;
 
@@ -793,6 +838,7 @@ input[type="range"]#rate_personality::-moz-range-thumb{
     }
 
     function comparator(key, dir) {
+      const isOut = c => ELIMINATED.has((c.slug||slugify(c.name)));
       const byNameAsc = (a,b)=>a.name.localeCompare(b.name);
       const byNameDesc = (a,b)=>b.name.localeCompare(a.name);
       const safeNum = v => (v==null||isNaN(v)? null : Number(v));
@@ -809,6 +855,14 @@ input[type="range"]#rate_personality::-moz-range-thumb{
       };
 
       switch (key) {
+        case 'status': {
+          const cmp = (a,b)=> {
+            const av = isOut(a) ? 1 : 0;
+            const bv = isOut(b) ? 1 : 0;
+            return (state.sortDir==='asc') ? (av - bv) : (bv - av);
+          };
+          return cmp;
+        }
         case 'name':   return dir==='asc'? byNameAsc : byNameDesc;
         case 'age':    return cmpNum(ageOf);
         case 'height': return cmpNum(hOf);
@@ -826,6 +880,7 @@ input[type="range"]#rate_personality::-moz-range-thumb{
       const key = state.sortKey, dir = state.sortDir;
       let text = '';
       if (key === 'name') text = (dir==='asc'?'A→Z':'Z→A');
+      else if (key === 'status') text = (dir==='asc'?'In→Out':'Out→In');
       else text = (dir==='asc'?'Low → High':'High → Low');
       els.sortDirIco.textContent = text;
       els.sortDirBtn.title = 'Sort: ' + text;
@@ -840,6 +895,10 @@ input[type="range"]#rate_personality::-moz-range-thumb{
       const sortKey = state.sortKey;
       const teamF   = String(state.team||'').trim();
       const grouped = !!state.groupByTeam;
+
+      const isOut = ELIMINATED.has(slug);
+      const tag = (state.showStatus && isOut) ? '<span class="pill-elim">Eliminated</span>' : '';
+
 
       let mode = 'none';
       if (grouped || teamF) mode = 'group';
@@ -883,9 +942,9 @@ input[type="range"]#rate_personality::-moz-range-thumb{
       }
 
       return (
-        '<a class="card" href="#/member/' + slug + '" aria-label="Open profile of ' + escapeHtml(c.name) + '">' +
+        '<a class="card' + (state.showStatus && isOut ? ' status-out' : '') + '" href="#/member/' + slug + '" aria-label="Open profile of ' + escapeHtml(c.name) + '">' +
           '<img class="avatar" src="' + (c.image || '') + '" alt="' + escapeHtml(c.name) + '" loading="lazy" />' +
-          '<div class="namebox">' + escapeHtml(c.name) + meta + '</div>' +
+          '<div class="namebox">' + escapeHtml(c.name) + tag + meta + '</div>' +
         '</a>'
       );
     }
@@ -895,12 +954,16 @@ input[type="range"]#rate_personality::-moz-range-thumb{
       const q = state.q.trim().toLowerCase();
       const teamF = (state.team||'').toLowerCase();
       const all = state.data.contestants.slice().sort(comparator(state.sortKey, state.sortDir));
+      
       const filtered = all.filter(c=>{
         const nameMatch = (c.name||'').toLowerCase().includes(q);
         const team = parseRound2(c).team;
         const teamMatch = !teamF || (team && team.toLowerCase()===teamF);
-        return nameMatch && teamMatch;
+        const isOut = ELIMINATED.has((c.slug||slugify(c.name)));
+        const statusMatch = (state.statusFilter==='all') || (state.statusFilter==='in' && !isOut) || (state.statusFilter==='out' && isOut);
+        return nameMatch && teamMatch && statusMatch;
       });
+
       state.filtered = filtered;
 
       const teams = Array.from(new Set(state.data.contestants.map(c=>parseRound2(c).team).filter(Boolean))).sort((a,b)=>a.localeCompare(b));
@@ -1075,6 +1138,8 @@ const slugKey = (c.slug||slugify(c.name));
     els.search.addEventListener('input', e=>{ state.q = e.target.value; renderList(); });
     els.teamFilter.addEventListener('change', e=>{ state.team = e.target.value; renderList(); });
     els.groupByTeam.addEventListener('change', e=>{ state.groupByTeam = !!e.target.checked; renderList(); });
+    els.statusFilter.addEventListener('change', e=>{ state.statusFilter = e.target.value; renderList(); });
+    els.showStatusTag.addEventListener('change', e=>{ state.showStatus = !!e.target.checked; renderList(); });
     els.backBtn.addEventListener('click', ()=>{ history.pushState('', document.title, window.location.pathname + window.location.search); onHash(); });
 
     // Default sort direction is ASC for every key
