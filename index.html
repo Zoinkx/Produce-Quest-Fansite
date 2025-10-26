@@ -714,6 +714,10 @@ input[type="range"]#rate_personality::-moz-range-thumb{
       'Team F': 'https://www.youtube.com/watch?v=_0nkWpDEQ60&t=4750'
     };
 
+    const stage3EvalByTeam = {
+      'Team A': 'https://www.youtube.com/watch?v=hXsY0U9zZuA'
+    };
+
     const slugify = s => (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
     const LS_KEY = 'pq_user_ratings_v1';
 
@@ -935,7 +939,11 @@ input[type="range"]#rate_personality::-moz-range-thumb{
       if (pr)  videos.push({title:'1-Minute PR', src:pr});
       if (team && teamEval) videos.push({title:'2.5th Stage Training Camp Evaluation — ' + team, src:teamEval});
 
-      const slugKey = (c.slug||slugify(c.name));
+      
+      const stage3Raw = stage3EvalByTeam[team];
+      const stage3 = toEmbed(stage3Raw);
+      if (team && stage3) videos.push({title:'Stage 3 Evaluation — ' + team, src:stage3});
+const slugKey = (c.slug||slugify(c.name));
       const current = userRatings[slugKey] || { cute: 0, sing: 0, dance: 0, visuals: 0, personality: 0 };
 
       function inputRow(key, label, valId) {
