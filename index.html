@@ -536,6 +536,96 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 @media (max-width: 860px){ .controls{ grid-template-columns: 1fr; } }
 
 </style>
+<style>
+/* --- PQ Socials patch v5 (exact spacing match) --- */
+.headergrid { display:grid; grid-template-columns: 240px 1fr auto; gap:16px; align-items:center; }
+@media (max-width: 720px) { .headergrid { grid-template-columns: 1fr; } }
+
+.socials-block { display:flex; flex-direction:column; gap:8px; justify-self:end; align-self:center;
+                 text-align:right; transform: translateY(3px); } /* aligned with name, equal vertical spacing */
+@media (max-width: 720px) { .socials-block { justify-self:start; text-align:left; transform:none; margin-top:6px; } }
+
+.socials-title { font-weight:700; font-size:14px; color:#b14b7a; line-height:1; }
+
+.socials { display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
+@media (max-width: 720px) { .socials { justify-content:flex-start; } }
+
+/* same 40px buttons / 24px icons */
+.sico { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px;
+        border-radius:999px; background:#fff; border:1px solid #f3c2d7; box-shadow: 0 2px 8px rgba(0,0,0,.06);
+        text-decoration:none; transition: transform .12s ease, background .12s ease; }
+.sico:hover { background:#ffe6f2; transform: translateY(-1px); }
+.sico svg { width:24px; height:24px; }
+</style>
+
+<style>
+/* --- PQ Typography/CSS tidy v7 (My Ratings polish + lighter /100) --- */
+
+/* Import Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root{ --jp-accent: #c76b94; --muted-gray: #7e8494; --light-gray: #a5a8b5; }
+
+/* Message-note */
+.message-note{
+  font-family: 'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial !important;
+  font-size: 17px !important;
+  line-height: 1.75 !important;
+  font-weight: 400 !important;
+}
+
+/* Statline chips */
+.chip .label{ color: var(--muted-gray) !important; font-weight: 600 !important; }
+.chip .value{ color: #000 !important; font-weight: 800 !important; }
+
+/* Section headers */
+.section-title,
+.videos .video h3{
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: var(--jp-accent) !important;
+  margin: 0 0 8px;
+}
+
+/* Socials title */
+.socials-title{ color: var(--jp-accent) !important; }
+
+/* Sub-headers in Favorites/About */
+.row .label{
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--muted-gray) !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+.row .value{
+  color: #000 !important;
+  font-weight: 700 !important;
+}
+
+/* --- My Ratings box --- */
+
+/* Rating titles (Cuteness, Singing, etc.) */
+.section.box .rows .row .topline .label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--muted-gray) !important;
+}
+
+/* Rating numbers (0/100) */
+.section.box .rows .row .topline .score {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #000 !important;
+}
+
+/* Slightly lighter "/100" */
+.section.box .rows .row .topline .score span + text,
+.section.box .rows .row .topline .score::after {
+  color: var(--light-gray) !important;
+}
+</style>
+
 </head>
 <body>
   <div class="container" id="listView">
@@ -995,5 +1085,59 @@ input[type="range"]#rate_personality::-moz-range-thumb{
     onHash();
   })();
   </script>
+<script>
+/* --- PQ Socials patch v5 --- */
+(function(){ 
+  const SOCIALS = {"rana-iwase": {"x": "https://x.com/wilthelan", "instagram": "https://www.instagram.com/i.rana_proque/"}, "aimi-inuzuka": {"instagram": "https://www.instagram.com/i.aimi_proque/", "x": "https://x.com/imaimiin", "tiktok": "https://www.tiktok.com/@i.aimi_proque"}, "mimi-ueki": {"instagram": "https://www.instagram.com/u.mimi_proque/", "x": "https://x.com/mimi_ueki33"}, "ruri-enomoto": {"instagram": "https://www.instagram.com/e.ruri_proque/", "x": "https://x.com/ru2ya_chan"}, "karen-otsubo": {"x": "https://x.com/lcarenren", "instagram": "https://www.instagram.com/o.karen_proque/"}, "haruka-kakutani": {"x": "https://x.com/proque_00oo", "instagram": "https://www.instagram.com/k.haruka_proque/"}, "ren-kawakita": {"instagram": "https://www.instagram.com/k.ren_proque/"}, "moka-kawaguchi": {"x": "https://x.com/mccmk_", "instagram": "https://www.instagram.com/k.moka_proque/"}, "nasuzu-koyama": {"instagram": "https://www.instagram.com/k.nasuzu_proque/"}, "mao-saito": {"instagram": "https://www.instagram.com/s.mao_proque/", "x": "https://x.com/mao_proque"}, "aimi-sato": {"instagram": "https://www.instagram.com/s.aimi_proque/", "tiktok": "https://www.tiktok.com/@aimi_purin_1216"}, "ruka-sato": {"instagram": "https://www.instagram.com/s.ruka_proque/"}, "miyuu-sato": {"tiktok": "https://www.tiktok.com/@03miyuu", "instagram": "https://www.instagram.com/s.miyuu_proque/"}, "aira-shikano": {"instagram": "https://www.instagram.com/s.aira_proque/"}, "yuu-seto": {"instagram": "https://www.instagram.com/s.yu_proque/", "x": "https://x.com/u_numu"}, "saaya-takaki": {"x": "https://x.com/saaya_proque", "instagram": "https://www.instagram.com/t.saaya_proque/"}, "reika-takeuchi": {"instagram": "https://www.instagram.com/t.reika_proque/", "x": "https://x.com/rekachi_kawa"}, "neiro-tanaka": {"instagram": "https://www.instagram.com/t.neiro_proque/", "x": "https://x.com/ne1ro_t"}, "kohime-nozaki": {"x": "https://x.com/pr_hime_15", "instagram": "https://www.instagram.com/n.kohime_proque/"}, "nana-hashimoto": {"x": "https://x.com/u_lmi09", "tiktok": "https://www.tiktok.com/@mndjjt3", "instagram": "https://www.instagram.com/h.nana_proque/"}, "kaworu-hayashi": {"x": "https://x.com/kaworu_proque", "tiktok": "https://www.tiktok.com/@lav.iz7", "instagram": "https://www.instagram.com/h.kaworu_proque/"}, "nikoa-furuse": {"instagram": "https://www.instagram.com/f.nicoa_proque/", "x": "https://x.com/nicoakuma3"}, "aimi-horinouchi": {"tiktok": "https://www.tiktok.com/@aita_nya", "instagram": "https://www.instagram.com/h.aimi_proque/", "x": "https://x.com/ai_chu_zZ"}, "kaede-mori": {"instagram": "https://www.instagram.com/m.kaede_proque/"}, "miyabi-yamamoto": {"instagram": "https://www.instagram.com/y.miyabi_proque/"}, "amane-yunoki": {"instagram": "https://www.instagram.com/y.amane_proque/"}, "choko-yoshida": {"instagram": "https://www.instagram.com/y.choko_proque/", "x": "https://x.com/choko__Love__"}, "kaaya-yoneyama": {"x": "https://x.com/kaaya_proque", "tiktok": "https://www.tiktok.com/@y.kaaya_proque", "instagram": "https://www.instagram.com/y.kaaya_proque/"}, "fuuka-nagaike": {"instagram": "https://www.instagram.com/n.fuka_proque/", "x": "https://x.com/fuka____v"}, "arisu-kawamatsu": {"instagram": "https://www.instagram.com/k.arisu_proque/", "x": "https://x.com/arisu_proque"}};
+  const slugify = s => (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  const getName = () => (document.querySelector('#detailView .title')?.textContent || '').trim();
+
+  function svgInstagram(){return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2.2A2.8 2.8 0 1 0 12 15.8 2.8 2.8 0 0 0 12 9.2zM18.5 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>`; }
+  function svgX(){return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h4.6l5.1 7.5L17.9 3H21l-7.1 9.9L21.6 21H17l-5.5-7.9L6.2 21H3l7.9-11L3 3z"/></svg>`; }
+  function svgTikTok(){return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 3.1c1.1 1.5 2.5 2.5 4.4 2.7v3.1c-1.7-.1-3.2-.6-4.4-1.5v6.6c0 3.2-2.6 5.8-5.8 5.8S2.9 17.2 2.9 14s2.6-5.8 5.8-5.8c.3 0 .6 0 .9.1v3.2c-.3-.1-.6-.1-.9-.1-1.5 0-2.7 1.2-2.7 2.7S7.2 16.8 8.7 16.8s2.7-1.2 2.7-2.7V3.1h3.1z"/></svg>`; }
+
+  function socialsHTML(slug, name){
+    const s = SOCIALS[slug]; if(!s) return '';
+    const firstName = name.split(' ')[0] || name;
+    const a = [];
+    if (s.instagram) a.push(`<a class="sico" href="${s.instagram}" target="_blank" rel="noopener" aria-label="Instagram">${svgInstagram()}</a>`);
+    if (s.x)         a.push(`<a class="sico" href="${s.x}" target="_blank" rel="noopener" aria-label="Twitter / X">${svgX()}</a>`);
+    if (s.tiktok)    a.push(`<a class="sico" href="${s.tiktok}" target="_blank" rel="noopener" aria-label="TikTok">${svgTikTok()}</a>`);
+    return `<div class="socials-block">
+              <div class="socials-title">Follow ${firstName} here:</div>
+              <div class="socials">${a.join('')}</div>
+            </div>`;
+  }
+
+  function currentSlug(){
+    const m = (location.hash||'').match(/^#\/member\/([a-z0-9-]+)/);
+    if (m) return m[1];
+    const h1 = document.querySelector('#detailView .title'); 
+    return h1 ? slugify(h1.textContent.trim()) : null;
+  }
+
+  function ensureHeaderGrid(){
+    const header = document.querySelector('#detailView .headergrid') || document.querySelector('#detailView section:first-child');
+    if (header && !header.classList.contains('headergrid')) header.classList.add('headergrid');
+  }
+
+  function inject(){
+    const slug = currentSlug(); if(!slug) return;
+    ensureHeaderGrid();
+    const header = document.querySelector('#detailView .headergrid') || document.querySelector('#detailView section:first-child');
+    if (!header) return;
+    if (header.querySelector('.socials-block')) return; // already injected
+    const wrap = document.createElement('div');
+    wrap.innerHTML = socialsHTML(slug, getName());
+    if (wrap.firstElementChild) header.appendChild(wrap.firstElementChild);
+  }
+
+  const obs = new MutationObserver(()=>inject());
+  obs.observe(document.getElementById('detailView')||document.body, { childList:true, subtree:true });
+  window.addEventListener('hashchange', inject);
+  document.addEventListener('DOMContentLoaded', inject);
+  inject();
+})();
+</script>
 </body>
 </html>
