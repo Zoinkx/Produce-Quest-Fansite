@@ -79,6 +79,13 @@
     .avatar-lg { width:240px; height:240px; border-radius:50%; object-fit:cover; }
     .title { margin:0; font-size:28px; font-weight:800; } .jp { color:#c76b94; font-size:16px; font-weight:700; margin-left:6px; }
     .team-badge { display:inline-block; background:#ffe3f0; border:1px solid #f3c2d7; border-radius:999px; padding:4px 10px; font-weight:700; margin-top:8px; }
+    /* Eliminated pill in detail header */
+    .detail .pill-elim {
+      display:inline-block; margin-left:8px; padding:4px 10px;
+      font-size:16px; font-weight:700; color:#9a375e;
+      background:#ffe3f0; border:1px solid #f3c2d7; border-radius:999px;
+    }
+
 
     .section { margin-top:16px; }
     .box { background:#fff8fb; border:1px solid #f6cfe0; border-radius:14px; padding:14px; }
@@ -1023,7 +1030,7 @@ const slugKey = (c.slug||slugify(c.name));
           '<img class="avatar-lg" src="'+(c.image||'')+'" alt="'+escapeHtml(c.name)+'" />'+
           '<div>'+
             '<h1 class="title">'+escapeHtml(c.name)+(c.name_kanji? ' <span class="jp">('+escapeHtml(c.name_kanji)+')</span>' : '')+'</h1>'+
-            (team? '<span class="team-badge">'+escapeHtml(team)+'</span>' : '')+
+            (team? '<span class="team-badge">'+escapeHtml(team)+'</span>' : '') + (ELIMINATED.has(slugKey) ? '<span class="pill-elim">Eliminated</span>' : '')+
           '</div>'+
         '</section>'+
         messageBox+
