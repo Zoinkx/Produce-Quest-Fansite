@@ -821,6 +821,57 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 
 </style>
 
+
+<style>
+/* --- Favorites button styles (yellow star) --- */
+.fav-btn{
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid #f3c2d7; background:#fff; color:#222;
+  border-radius:999px; padding:8px 12px; font-weight:700; font-size:14px;
+  cursor:pointer; box-shadow: var(--shadow);
+  transition: background .12s ease, transform .12s ease, border-color .12s ease;
+}
+.fav-btn:hover{ background:#fffbe6; transform: translateY(-1px); border-color:#ffe082; }
+.fav-btn svg{ width:18px; height:18px; flex:0 0 18px; }
+.fav-btn svg path{ fill:#d4d4d4; transition: fill .12s ease; }
+.fav-btn:hover svg path{ fill:#ffd54f; }
+.fav-btn.is-fav svg path{ fill:#ffd54f; }
+.fav-btn.is-fav{ background:#fffbe6; border-color:#ffe082; }
+
+/* --- Favorites v2: favorited-hover removal state + animated icon swap --- */
+.fav-btn{ position: relative; }
+.fav-btn .icon-wrap{ position:relative; width:18px; height:18px; display:inline-block; }
+.fav-btn .icon-wrap svg{ position:absolute; inset:0; transition: opacity .18s ease, transform .18s ease; }
+.fav-btn .icon-x{ opacity:0; transform: scale(.8) rotate(-8deg); }
+.fav-btn .icon-star{ opacity:1; transform: scale(1) rotate(0deg); }
+.fav-btn .label-default, .fav-btn .label-fav, .fav-btn .label-remove{ transition: opacity .12s ease; }
+.fav-btn .label-fav, .fav-btn .label-remove{ display:none; }
+
+/* Not favorited: default behavior stays the same */
+.fav-btn:hover{ background:#fffbe6; border-color:#ffe082; }
+.fav-btn:hover .icon-star path{ fill:#ffd54f; }
+
+/* Favorited default state */
+.fav-btn.is-fav{ background:#fffbe6; border-color:#ffe082; }
+.fav-btn.is-fav .label-default{ display:none; }
+.fav-btn.is-fav:not(:hover) .label-fav{ display:inline; }
+.fav-btn.is-fav:not(:hover) .icon-x{ opacity:0; transform: scale(.8) rotate(-8deg); }
+.fav-btn.is-fav:not(:hover) .icon-star{ opacity:1; transform: scale(1) rotate(0deg); }
+
+/* Favorited + hover = "Remove from favorites" */
+.fav-btn.is-fav:hover{ background:#ffeaea; border-color:#ff9aa2; }
+.fav-btn.is-fav:hover .icon-star{ opacity:0; transform: scale(1.15) rotate(8deg); }
+.fav-btn.is-fav:hover .icon-x{ opacity:1; transform: scale(1) rotate(0deg); }
+.fav-btn.is-fav:hover .label-fav{ display:none; }
+.fav-btn.is-fav:hover .label-remove{ display:inline; }
+
+/* Icon colors */
+.fav-btn svg path{ fill:#d4d4d4; }
+.fav-btn.is-fav svg path{ fill:#ffd54f; }
+.fav-btn.is-fav:hover .icon-x path{ fill:#ef5350; }
+
+</style>
+
 </head>
 <body>
   <div class="container" id="listView">
@@ -843,6 +894,7 @@ input[type="range"]#rate_personality::-moz-range-thumb{
       <input id="search" class="input" type="search" placeholder="Search contestant names…" />
       <select id="sortKey" class="select" aria-label="Sort by">
         <option value="name">Name</option>
+        <option value="favorites">Favorites</option>
         <option value="age">Age</option>
         <option value="height">Height</option>
         <option value="my-overall">Overall</option>
@@ -969,6 +1021,19 @@ input[type="range"]#rate_personality::-moz-range-thumb{
   const ELIMINATED = new Set(ELIMINATED_NAMES.map(n=>slugify(n)));
 
   // Ratings storage
+  // Favorites storage
+  const FAV_KEY = 'pq_favorites_v1';
+  function loadFavs(){
+    try{
+      const arr = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
+      return new Set(Array.isArray(arr) ? arr : []);
+    }catch(_){ return new Set(); }
+  }
+  let favorites = loadFavs();
+  function saveFavs(){ try{ localStorage.setItem(FAV_KEY, JSON.stringify(Array.from(favorites))); }catch(_){ } }
+  function isFav(slug){ return favorites.has(slug); }
+  function toggleFav(slug){ if(favorites.has(slug)) favorites.delete(slug); else favorites.add(slug); saveFavs(); }
+
   const LS_KEY = 'pq_user_ratings_v1';
   function safeParse(json, fb){ try{ return JSON.parse(json) ?? fb; } catch { return fb; } }
   let userRatings = safeParse(localStorage.getItem(LS_KEY), {});
@@ -1138,7 +1203,11 @@ const slugKey = (c.slug||slugify(c.name));
           '<img class="avatar-lg" src="'+(c.image||'')+'" alt="'+escapeHtml(c.name)+'" />'+
           '<div>'+
             '<h1 class="title">'+escapeHtml(c.name)+(c.name_kanji? ' <span class="jp">('+escapeHtml(c.name_kanji)+')</span>' : '')+'</h1>'+
-            (team? '<span class="team-badge">'+escapeHtml(team)+'</span>' : '') + (ELIMINATED.has(slugKey) ? '<span class="pill-elim">Eliminated</span>' : '')+'</div>'+
+            (team? '<span class="team-badge" data-team="'+escapeHtml(team)+'">'+escapeHtml(team)+'</span>' : '') + (ELIMINATED.has(slugKey) ? '<span class="pill-elim">Eliminated</span>' : '')+
+            '<div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">'
+            + '<button id="favoriteBtn" class="fav-btn" type="button" aria-pressed="false" data-slug="'+slugKey+'"><span class="icon-wrap"><svg class="icon-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="icon-x" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.3 5.7a1 1 0 0 0-1.4 0L12 10.59 7.1 5.7A1 1 0 0 0 5.7 7.1L10.59 12 5.7 16.9a1 1 0 1 0 1.4 1.4L12 13.41l4.9 4.89a1 1 0 0 0 1.4-1.4L13.41 12l4.89-4.9a1 1 0 0 0 0-1.4z"/></svg></span><span class="label-default">Add to favorites</span><span class="label-fav">Favorited</span><span class="label-remove">Remove from favorites</span></button>'
+            + '</div>'
+            + '</div>'+
         '</section>'+
         messageBox+
         '<section class="section box">'+
@@ -1177,6 +1246,22 @@ const slugKey = (c.slug||slugify(c.name));
         '</section>'+
         ratingsBox+
         (videos.length ? ('<section class="videos">'+videos.map(v=>video(v.title, v.src)).join('')+'</section>') : '');
+
+
+      // Wire up Favorites button
+      (function(){
+        const btn = document.getElementById('favoriteBtn');
+        if(!btn) return;
+        const slug = btn.getAttribute('data-slug');
+        function sync(){
+          const f = isFav(slug);
+          btn.classList.toggle('is-fav', f);
+          btn.setAttribute('aria-pressed', f ? 'true' : 'false');
+          // labels handled by CSS states now
+        }
+        btn.addEventListener('click', ()=>{ toggleFav(slug); sync(); });
+        sync();
+      })();
 
       // Wire up ratings
       (function(){
@@ -1241,6 +1326,7 @@ const slugKey = (c.slug||slugify(c.name));
     };
     switch(key){
       case 'name': return dir==='asc'?byNameAsc:byNameDesc;
+      case 'favorites': return dir==='asc'?byNameAsc:byNameDesc;
       case 'age': return cmpNum(ageOf);
       case 'height': return cmpNum(hOf);
       case 'my-overall': return cmpNum(score('overall'));
@@ -1261,6 +1347,7 @@ const slugKey = (c.slug||slugify(c.name));
     if (key==='name') text = (dir==='asc'?'A → Z':'Z → A');
     else if (key==='age') text = (dir==='asc'?'Youngest → Oldest':'Oldest → Youngest');
     else if (key==='height') text = (dir==='asc'?'Shortest → Tallest':'Tallest → Shortest');
+    else if (key==='favorites') text = (dir==='asc'?'A → Z':'Z → A');
     else text = (dir==='asc'?'Low → High':'High → Low');
     els.sortDirIco.textContent = text;
     els.sortDirBtn.title = 'Sort: '+text;
@@ -1481,7 +1568,9 @@ function renderList(){
       const teamMatch = !teamF || (team && team.toLowerCase()===teamF);
       const isOut = ELIMINATED.has((c.slug||slugify(c.name)));
       const statusMatch = (state.statusFilter==='all') || (state.statusFilter==='in' && !isOut) || (state.statusFilter==='out' && isOut);
-      return nameMatch && teamMatch && statusMatch;
+      const favMatch = (state.sortKey !== 'favorites') || isFav((c.slug||slugify(c.name)));
+
+      return nameMatch && teamMatch && statusMatch && favMatch;
     });
 
     const cls = teamF ? 'five' : 'four';
