@@ -1586,6 +1586,68 @@ function renderList(){
   document.addEventListener('DOMContentLoaded', inject);
   inject();
 })();
+
+
+// === Team pill -> switch to team overview (single-page) — DOM-driven version ===
+(function(){
+  // Remove any previous patch to avoid duplicates
+  if (window.__teamPillWiredV2) return;
+  window.__teamPillWiredV2 = true;
+
+  function findEval3TeamButton(team){
+    // Strategy: look for a submenu/section that mentions "Evaluation 3"
+    // and inside it, find a .team-option whose text equals the team.
+    const allTeamButtons = Array.from(document.querySelectorAll('.team-option'));
+    if (!allTeamButtons.length) return null;
+
+    // Prefer a button under a section that mentions Evaluation 3
+    const eval3Candidates = allTeamButtons.filter(btn => {
+      const sec = btn.closest('[data-eval]') || btn.closest('.submenu') || btn.parentElement;
+      const txt = (sec && sec.textContent) ? sec.textContent : '';
+      return /Evaluation\s*3/i.test(txt);
+    });
+
+    const matchInEval3 = eval3Candidates.find(b => (b.textContent||'').trim() === team);
+    if (matchInEval3) return matchInEval3;
+
+    // Fallback: any matching team-option
+    return allTeamButtons.find(b => (b.textContent||'').trim() === team) || null;
+  }
+
+  window.goToTeam = function(team){
+    if (!team) return;
+    const btn = findEval3TeamButton(team);
+    if (btn) {
+      // Simulate a user click to trigger the app's own logic.
+      btn.click();
+      // Ensure we are not stuck in detail view
+      if (location.hash) location.hash = '';
+      try { window.scrollTo({top: 0, behavior: 'instant'}); } catch(e) {}
+    } else {
+      console.warn('Team option not found in menu:', team);
+    }
+  };
+
+  // Delegated click (and keyboard) on the team badge in the profile header
+  document.addEventListener('click', function(e){
+    const pill = e.target && (e.target.closest ? e.target.closest('.team-badge') : null);
+    if (!pill) return;
+    const team = (pill.getAttribute('data-team') || pill.textContent || '').trim();
+    if (team) { e.preventDefault(); goToTeam(team); }
+  }, true);
+
+  document.addEventListener('keydown', function(e){
+    const t = e.target;
+    if (!t || !(t.classList && t.classList.contains('team-badge'))) return;
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault();
+      const team = (t.getAttribute('data-team') || t.textContent || '').trim();
+      if (team) goToTeam(team);
+    }
+  }, true);
+})();
+// === End patch ===
+
 </script>
 </body>
 </html>
