@@ -872,6 +872,195 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 
 </style>
 
+
+<style>
+
+<style>
+
+<style>
+
+<style>
+/* --- Favorited avatar halo (contained, no page spill) --- */
+.halo-wrap{
+  position:relative; display:inline-block; border-radius:999px;
+  isolation:isolate; /* contain effects to the wrapper */
+}
+.grid .halo-wrap{ border-radius:50%; }
+
+.halo-wrap > img{ position:relative; z-index:2; display:block; border-radius:inherit; }
+/* center-origin gold bloom (alpha-only), masked to circle edge */
+.halo-wrap::before{
+  content:""; position:absolute; inset:-18px; border-radius:inherit; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,232,173,.36) 0%, rgba(255,228,160,.22) 40%, rgba(255,210,120,.08) 66%, rgba(255,210,120,0) 78%);
+  filter: blur(12px);
+  opacity:0.48;
+  transform: scale(var(--haloScale,1.08));
+  animation: haloBreath 5s ease-in-out infinite;
+  -webkit-mask: radial-gradient(circle at 50% 50%, #000 0 86%, transparent 92%);
+          mask: radial-gradient(circle at 50% 50%, #000 0 86%, transparent 92%);
+}
+/* feather ring to soften inner edge — no blend-mode; only alpha */
+.halo-wrap .halo-blend{
+  position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(circle at 50% 50%,
+      rgba(255,240,205,0) 44%,
+      rgba(255,240,205,.22) 66%,
+      rgba(255,255,255,.16) 78%,
+      rgba(255,240,205,0) 94%);
+  filter: blur(1.0px);
+  -webkit-mask: radial-gradient(circle at 50% 50%, #000 0 92%, transparent 100%);
+          mask: radial-gradient(circle at 50% 50%, #000 0 92%, transparent 100%);
+}
+/* interior wash (subtle), alpha-only */
+.halo-wrap .halo-soften{
+  position:absolute; inset:6%; border-radius:inherit; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(circle at 50% 45%,
+      rgba(255, 236, 190, .10) 0%,
+      rgba(255, 236, 190, .06) 52%,
+      rgba(255,236,190, .00) 80%);
+  filter: blur(0.6px);
+}
+@keyframes haloBreath{
+  0%,100%{ --haloScale: .985; opacity:.96; }
+  50%    { --haloScale: 1.045; opacity:1; }
+}
+/* Fallback (minimal) */
+.card.is-fav img.avatar,
+.headergrid.is-fav img.avatar-lg { box-shadow: 0 0 0 1px rgba(255,240,210,.28), 0 0 48px 14px rgba(255,232,173,.30); }
+</style>
+
+
+
+
+
+<style>
+/* Contain any child blending/filters inside cards and detail header */
+.grid a.card{ position:relative; isolation:isolate; }
+#detailView .headergrid{ position:relative; isolation:isolate; }
+</style>
+
+
+<style>
+/* Layer the name/details box above any avatar glow in grid */
+.grid a.card .namebox{ position:relative; z-index:5; }
+
+/* Balanced aura in GRID (subtle highlight) */
+.grid .halo-wrap::before{
+  inset:0px;
+  filter: blur(1.5px);
+  opacity:0.12; /* overall dim */
+  -webkit-mask: radial-gradient(circle at 50% 50%, #000 0 82%, transparent 88%);
+          mask: radial-gradient(circle at 50% 50%, #000 0 82%, transparent 88%);
+}
+.grid .halo-blend{
+  filter: blur(0.3px);
+  opacity:0.10;
+  -webkit-mask: radial-gradient(circle at 50% 50%, #000 0 90%, transparent 100%);
+          mask: radial-gradient(circle at 50% 50%, #000 0 90%, transparent 100%);
+}
+/* soften inside just a touch; keep very light */
+.grid .halo-soften{ inset:9%; opacity:0.06; }
+
+/* Contestant page: ensure strict containment under avatar */
+#detailView .headergrid .halo-wrap::before{
+  inset:-18px;
+  filter: blur(12px);
+  -webkit-mask: radial-gradient(circle at 50% 50%, #000 0 84%, transparent 90%);
+          mask: radial-gradient(circle at 50% 50%, #000 0 84%, transparent 90%);
+ opacity:0.48;
+#detailView .headergrid .halo-blend{
+  -webkit-mask: radial-gradient(circle at 50% 50%, #000 0 92%, transparent 100%);
+          mask: radial-gradient(circle at 50% 50%, #000 0 92%, transparent 100%);
+}
+#detailView .headergrid .halo-soften{ inset:6%; }
+</style>
+
+
+<style>
+/* Strict containment: detail avatar only */
+#detailView .headergrid .halo-wrap{
+  overflow:hidden;                    /* clip pseudo-elements to the circle */
+  clip-path: circle(50% at 50% 50%);  /* hard clamp */
+}
+.grid .halo-wrap{ border-radius:50%; }
+
+</style>
+
+
+<!-- HALO FIX OVERRIDES v4 (aggressive) -->
+<style id="halo-fix-overrides">
+/* 0) Nuke any previous halo layers & masks that can clip/freeze visuals */
+.halo-wrap::before,
+.halo-wrap::after,
+.halo-blend,
+.halo-soften{
+  display:none !important;
+  opacity:0 !important;
+}
+.halo-wrap,
+.halo-wrap *{
+  -webkit-mask:none !important;
+  mask:none !important;
+  background-clip:border-box !important;
+}
+
+/* 1) Ensure layout + stacking */
+.halo-wrap{ position:relative !important; overflow:visible !important; }
+.halo-wrap > img{ position:relative !important; z-index:2 !important; border-radius:50% !important; }
+
+/* 2) Global default (contestant page & anywhere non-grid): soft, wider aura */
+.halo-wrap > img{
+  filter:
+    drop-shadow(0 0 8px rgba(255,210,120,0.20))
+    drop-shadow(0 0 16px rgba(255,195,100,0.16))
+    drop-shadow(0 0 28px rgba(255,180,80,0.12))
+    drop-shadow(0 0 40px rgba(255,170,70,0.08))
+    drop-shadow(0 0 56px rgba(255,160,60,0.05)) !important;
+}
+
+/* 3) Grid-specific reduction: keep extremely subtle */
+.grid .halo-wrap > img{
+  filter:
+    drop-shadow(0 0 6px rgba(255,210,120,0.10))
+    drop-shadow(0 0 12px rgba(255,190,90,0.06)) !important;
+}
+</style>
+
+
+<!-- HALO FEATHER OVERRIDE (element-based, no masks) -->
+<style id="halo-feather-override">
+/* 1) Ensure avatar and ancestors don't clip the glow */
+.halo-wrap, .halo-wrap *{
+  -webkit-mask:none !important;
+  mask:none !important;
+  clip-path:none !important;
+}
+.halo-wrap{ position:relative !important; overflow:visible !important; }
+.halo-wrap > img{ position:relative !important; z-index:2 !important; border-radius:50% !important; }
+
+/* 2) Real element glow that feathers softly */
+.halo-wrap .halo-feather{
+  position:absolute; inset:-24px;
+  border-radius:50%;
+  z-index:1; pointer-events:none;
+  /* stacked wide shadows for soft outer glow */
+  box-shadow:
+    0 0 16px rgba(255,210,120,0.25),
+    0 0 34px rgba(255,195,100,0.18),
+    0 0 52px rgba(255,180,80,0.12),
+    0 0 72px rgba(255,170,70,0.08);
+  opacity:0.45;
+}
+
+/* 3) Grid view: smaller & fainter */
+.grid .halo-wrap .halo-feather{
+  inset:-6px;
+  box-shadow:  0 0 8px rgba(255,220,140,0.22), 0 0 16px rgba(255,200,100,0.18), 0 0 28px rgba(255,180,80,0.12); opacity:0.34; }
+</style>
+
 </head>
 <body>
   <div class="container" id="listView">
@@ -1737,5 +1926,108 @@ function renderList(){
 // === End patch ===
 
 </script>
+
+<script>
+(function(){
+  function wrapOnce(img){
+    if (!img) return;
+    if (img.closest('.halo-wrap')) return;
+    const wrap = document.createElement('span');
+    wrap.className = 'halo-wrap';
+    img.parentNode.insertBefore(wrap, img);
+    wrap.appendChild(img);
+    const feather = document.createElement('span');
+    feather.className = 'halo-blend';
+    wrap.appendChild(feather);
+    const soften = document.createElement('span');
+    soften.className = 'halo-soften';
+    wrap.appendChild(soften);
+  }
+  function unwrap(img){
+    const wrap = img && img.closest && img.closest('.halo-wrap');
+    if(!wrap) return;
+    wrap.parentNode.insertBefore(img, wrap);
+    wrap.remove();
+  }
+  function cardSlug(a){
+    const href = a.getAttribute('href')||'';
+    const m = href.match(/#\/member\/(.+)$/);
+    return m ? m[1] : null;
+  }
+  function getFavSet(){
+    // use page's isFav if present; else build from localStorage
+    if (typeof isFav === 'function') return null;
+    const keys = new Set(['pq_favorites_v1','favorites','produce_quest_favorites']);
+    for (let i=0;i<localStorage.length;i++){ const k = localStorage.key(i)||''; if (/fav/i.test(k)) keys.add(k); }
+    const out = new Set();
+    keys.forEach(k=>{ try{ const arr = JSON.parse(localStorage.getItem(k)||'[]'); if(Array.isArray(arr)) arr.forEach(s=>{ if(typeof s==='string') out.add(s); }); }catch(_){ } });
+    return out;
+  }
+  function isFavSlug(slug){
+    if (!slug) return false;
+    if (typeof isFav === 'function') { try{ return !!isFav(slug); }catch(_){ return false; } }
+    const set = getFavSet(); return set ? set.has(slug) : false;
+  }
+  function syncGrid(){
+    const cards = document.querySelectorAll('.grid a.card');
+    cards.forEach(a=>{
+      const slug = cardSlug(a);
+      const fav = isFavSlug(slug);
+      a.classList.toggle('is-fav', !!fav);
+      const img = a.querySelector('img') || null;
+      if (!img) return;
+      if (fav){ wrapOnce(img); img.classList.add('is-fav'); }
+      else { unwrap(img); img.classList.remove('is-fav'); }
+    });
+  }
+  function syncDetail(){
+    const header = document.querySelector('#detailView .headergrid');
+    const big = header ? header.querySelector('img.avatar-lg') : null;
+    const favBtn = document.getElementById('favoriteBtn');
+    const slug = favBtn ? favBtn.getAttribute('data-slug') : null;
+    let fav = false;
+    if (favBtn){ fav = favBtn.getAttribute('aria-pressed')==='true' || favBtn.classList.contains('is-fav'); }
+    if (!fav && slug && typeof isFav === 'function'){ fav = !!isFav(slug); }
+    if (header) header.classList.toggle('is-fav', fav);
+    if (big){
+      if (fav){ wrapOnce(big); big.classList.add('is-fav'); }
+      else { unwrap(big); big.classList.remove('is-fav'); }
+    }
+  }
+  function kick(){ syncGrid(); syncDetail();
+      // ensure any existing wraps have both overlays
+      document.querySelectorAll('.halo-wrap').forEach(w=>{
+        if (!w.querySelector('.halo-blend')){ const b=document.createElement('span'); b.className='halo-blend'; w.appendChild(b); }
+        if (!w.querySelector('.halo-soften')){ const s=document.createElement('span'); s.className='halo-soften'; w.appendChild(s); }
+      });
+    }
+  // Initial + after DOM builds
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', kick); else kick();
+  // React to mutations (grid/detail re-renders)
+  const obs = new MutationObserver(kick);
+  obs.observe(document.documentElement, {subtree:true, childList:true});
+  // React to storage updates (other tabs)
+  window.addEventListener('storage', (e)=>{ if(/fav/i.test(e.key||'')) kick(); });
+  // Ensure favorite button click reflects immediately
+  document.addEventListener('click', (e)=>{
+    const btn = e.target && (e.target.closest && e.target.closest('#favoriteBtn'));
+    if (btn){ setTimeout(kick, 0); }
+  });
+})();
+</script>
+
+
+<script id="halo-feather-setup">
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.halo-wrap').forEach(function(w){
+    if(!w.querySelector('.halo-feather')){
+      var f = document.createElement('div');
+      f.className = 'halo-feather';
+      w.appendChild(f);
+    }
+  });
+});
+</script>
+
 </body>
 </html>
