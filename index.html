@@ -1723,14 +1723,27 @@ const key = state.sortKey;
   function onHash(){
     const m = (location.hash||'').match(/^#\/member\/([a-z0-9-]+)/);
     if (m) {
+      // Switch to detail view
       els.listView.style.display='none';
       document.getElementById('detailView').classList.add('visible');
       if (typeof renderDetail === 'function') {
         renderDetail(m[1]);
       }
+      // Always jump to the top of the page when entering a profile
+      try {
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+        const topEl = document.querySelector('#detailView .container') || document.getElementById('detailView');
+        if (topEl && topEl.scrollIntoView) topEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+      } catch (_) {}
     } else {
+      // Return to list view
       document.getElementById('detailView').classList.remove('visible');
       els.listView.style.display='';
+      try {
+        window.scrollTo(0, 0);
+      } catch(_) {}
     }
   }
   window.addEventListener('hashchange', onHash);
