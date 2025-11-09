@@ -77,7 +77,7 @@
     .headergrid { display:grid; grid-template-columns: 240px 1fr; gap:16px; align-items:center; }
     .avatar-lg { width:240px; height:240px; border-radius:50%; object-fit:cover; }
     .title { margin:0; font-size:28px; font-weight:800; } .jp { color:#c76b94; font-size:16px; font-weight:700; margin-left:6px; }
-    .team-badge { display:inline-block; background:#ffe3f0; border:1px solid #f3c2d7; border-radius:999px; padding:4px 10px; font-weight:700; margin-top:8px; cursor:pointer; transition:background 0.2s, transform 0.15s; }
+    .team-badge { display:inline-block; background:#ffe3f0; border:1px solid #f3c2d7; border-radius:999px; padding:4px 10px; font-weight:700; margin-top:8px; margin-right:6px; cursor:pointer; transition:background 0.2s, transform 0.15s; }
     /* Eliminated pill in detail header */
     .detail .pill-elim {
       display:inline-block; margin-left:8px; padding:4px 10px;
@@ -1291,6 +1291,41 @@ input[type="range"]#rate_personality::-moz-range-thumb{
   'Team E': 'https://www.youtube.com/watch?v=NbT_KcIa5Cw',
   'Team F': 'https://www.youtube.com/watch?v=cJf6KaF6dXo'
 }
+// === Evaluation 4 groups ===
+const EVAL4_GROUPS = {
+  'Team A': [
+    'karen-otsubo',
+    'saaya-takaki',
+    'choko-yoshida',
+    'mimi-ueki',
+    'rana-iwase',
+    'neiro-tanaka'
+  ],
+  'Team B': [
+    'kaaya-yoneyama',
+    'nana-hashimoto',
+    'miyuu-sato',
+    'haruka-kakutani',
+    'mao-saito',
+    'miyabi-yamamoto'
+  ],
+  'Team C': [
+    'kaworu-hayashi',
+    'nicoa-furuse',
+    'reika-takeuchi',
+    'moka-kawaguchi',
+    'amane-yunoki',
+    'aimi-inuzuka'
+  ]
+};
+
+const EVAL4_GROUPS_BY_MEMBER = {};
+Object.entries(EVAL4_GROUPS).forEach(([team, members]) => {
+  members.forEach(slug => {
+    EVAL4_GROUPS_BY_MEMBER[slug] = team;
+  });
+});
+
   // === Central map of per-evaluation team videos (for list view) ===
   // Keys must match the eval label produced by the menu code (e.g. "Evaluation 3")
   const TEAM_VIDEOS = {
@@ -1346,22 +1381,26 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 function renderDetail(slug) {
       const c = state.data.contestants.find(x => (x.slug||slugify(x.name))===slug);
       if (!c) { els.detailCard.innerHTML = '<p>Not found.</p>'; return; }
-      const team = parseRound2(c).team;
+
+      const slugKey = (c.slug || slugify(c.name));
+      const round2Info = parseRound2(c);
+      const round2Team = round2Info.team || '';
+      const eval4Team = EVAL4_GROUPS_BY_MEMBER[slugKey] || '';
+
       const age = computeAge(c.birthday);
       const pr  = toEmbed(c.pr_video);
       const aud = toEmbed(c.audition_video);
-      const teamEvalRaw = campEvalByTeam[team];
+      const teamEvalRaw = campEvalByTeam[round2Team];
       const teamEval = toEmbed(teamEvalRaw);
       const videos = [];
       if (aud) videos.push({title:'Audition', src:aud});
       if (pr)  videos.push({title:'1-Minute PR', src:pr});
-      if (team && teamEval) videos.push({title:'2.5th Stage Training Camp Evaluation — ' + team, src:teamEval});
+      if (round2Team && teamEval) videos.push({title:'2.5th Stage Training Camp Evaluation — ' + round2Team, src:teamEval});
 
       
-      const stage3Raw = stage3EvalByTeam[team];
+      const stage3Raw = stage3EvalByTeam[round2Team];
       const stage3 = toEmbed(stage3Raw);
-      if (team && stage3) videos.push({title:'Stage 3 Evaluation — ' + team, src:stage3});
-const slugKey = (c.slug||slugify(c.name));
+      if (round2Team && stage3) videos.push({title:'Stage 3 Evaluation — ' + round2Team, src:stage3});
       const current = userRatings[slugKey] || { cute: 0, sing: 0, dance: 0, visuals: 0, personality: 0 };
 
       function inputRow(key, label, valId) {
@@ -1393,7 +1432,9 @@ const slugKey = (c.slug||slugify(c.name));
           '<img class="avatar-lg" src="'+(c.image||'')+'" alt="'+escapeHtml(c.name)+'" />'+
           '<div>'+
             '<h1 class="title">'+escapeHtml(c.name)+(c.name_kanji? ' <span class="jp">('+escapeHtml(c.name_kanji)+')</span>' : '')+'</h1>'+
-            (team? '<span class="team-badge" data-team="'+escapeHtml(team)+'">'+escapeHtml(team)+'</span>' : '') + (ELIMINATED.has(slugKey) ? '<span class="pill-elim">Eliminated</span>' : '')+
+            (round2Team ? '<span class="team-badge" data-eval="Evaluation 3" data-team="'+escapeHtml(round2Team)+'">Eval 3 · '+escapeHtml(round2Team)+'</span>' : '')+
+            (eval4Team ? '<span class="team-badge" data-eval="Evaluation 4" data-team="'+escapeHtml(eval4Team)+'">Eval 4 · '+escapeHtml(eval4Team)+'</span>' : '')+
+            (ELIMINATED.has(slugKey) ? '<span class="pill-elim">Eliminated</span>' : '')+
             '<div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">'
             + '<button id="favoriteBtn" class="fav-btn" type="button" aria-pressed="false" data-slug="'+slugKey+'"><span class="icon-wrap"><svg class="icon-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="icon-x" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.3 5.7a1 1 0 0 0-1.4 0L12 10.59 7.1 5.7A1 1 0 0 0 5.7 7.1L10.59 12 5.7 16.9a1 1 0 1 0 1.4 1.4L12 13.41l4.9 4.89a1 1 0 0 0 1.4-1.4L13.41 12l4.89-4.9a1 1 0 0 0 0-1.4z"/></svg></span><span class="label-default">Add to favorites</span><span class="label-fav">Favorited</span><span class="label-remove">Remove from favorites</span></button>'
             + '</div>'
@@ -1431,7 +1472,8 @@ const slugKey = (c.slug||slugify(c.name));
             row('If reborn', c.if_reborn)+
             row('If could use magic', c.if_magic)+
             row('Audition Song', c.audition_song)+
-            row('Round 2 Team', team)+
+            row('Round 2 / Eval 3 Team', round2Team ? ('Team ' + round2Team) : '')+
+            row('Evaluation 4 Team', eval4Team ? ('Team ' + eval4Team) : '')+
           '</div>'+
         '</section>'+
         ratingsBox+
@@ -1545,6 +1587,15 @@ const slugKey = (c.slug||slugify(c.name));
   }
 
   function parseTeam(rec){
+    const slug = rec.slug || slugify(rec.name);
+
+    // For Evaluation 4 view, only use the dedicated groups map.
+    // If a member is not in EVAL4_GROUPS, they should not appear in an Eval 4 team filter.
+    if (state.evalRound === 'Evaluation 4') {
+      return EVAL4_GROUPS_BY_MEMBER[slug] || '';
+    }
+
+    // Default / Evaluation 3 and general view: use Round 2 team (A–F)
     return (rec.round2_team || (rec.round2 ? String(rec.round2).split(':')[0].trim() : '') || '');
   }
 
@@ -1623,8 +1674,8 @@ const key = state.sortKey;
 
   // --- Build nested Team filter menu (Evaluation -> Team) ---
   const EVALUATIONS = {
-    'Evaluation 3 Teams': ['Team A','Team B','Team C','Team D','Team E','Team F']
-    // Add future rounds like: 'Evaluation 4 Teams': ['Team 1','Team 2',...]
+    'Evaluation 3 Teams': ['Team A','Team B','Team C','Team D','Team E','Team F'],
+    'Evaluation 4 Teams': ['Team A','Team B','Team C']
   };
   function buildEvalMenu(){
     const menu = els.evalMenu;
@@ -1654,17 +1705,18 @@ const key = state.sortKey;
         b.className = 'team-option';
         b.type = 'button';
         b.textContent = team;
+        const evalShort = evalName.replace(/\s*Teams\s*$/i,''); // "Evaluation 3", "Evaluation 4"
+        b.setAttribute('data-eval', evalShort);
         b.addEventListener('click', (e)=>{
           e.stopPropagation();
           state.team = team;
-          const evalShort = evalName.replace(/\s*Teams\s*$/i,''); // "Evaluation 3"
           els.evalTriggerLabel.textContent = evalShort + ' - ' + team;
-            state.evalRound = evalShort;
-            menu.classList.remove('open');
-            els.evalTrigger.setAttribute('aria-expanded','false');
-            renderList();
-          });
-          sub.appendChild(b);
+          state.evalRound = evalShort;
+          menu.classList.remove('open');
+          els.evalTrigger.setAttribute('aria-expanded','false');
+          renderList();
+        });
+        sub.appendChild(b);
       });
 
       item.appendChild(sub);
@@ -1776,7 +1828,14 @@ function renderList(){
       return nameMatch && teamMatch && statusMatch && favMatch;
     });
 
-    const cls = teamF ? 'five' : 'four';
+    let cls = 'four';
+    if (teamF) {
+      if (state.evalRound === 'Evaluation 4') {
+        cls = 'eval4-three';
+      } else {
+        cls = 'five';
+      }
+    }
     els.gridWrap.innerHTML = cardHTMLWrap(filtered, cls);
       // Append team video if available for the selected evaluation + team
       try {
@@ -1807,7 +1866,7 @@ function renderList(){
 "x": "https://x.com/lcarenren", "instagram": "https://www.instagram.com/o.karen_proque/",
       tiktok: 'https://www.tiktok.com/@lcarenren'
     
-  }, "haruka-kakutani": {"x": "https://x.com/proque_00oo", "instagram": "https://www.instagram.com/k.haruka_proque/"}, "ren-kawakita": {"instagram": "https://www.instagram.com/k.ren_proque/"}, "moka-kawaguchi": {"x": "https://x.com/mccmk_", "instagram": "https://www.instagram.com/k.moka_proque/"}, "nasuzu-koyama": {"instagram": "https://www.instagram.com/k.nasuzu_proque/", "x": "https://x.com/nasu_produce"}, "mao-saito": {"instagram": "https://www.instagram.com/s.mao_proque/", "x": "https://x.com/mao_proque"}, "aimi-sato": {"instagram": "https://www.instagram.com/s.aimi_proque/", "tiktok": "https://www.tiktok.com/@aimi_purin_1216"}, "ruka-sato": {"instagram": "https://www.instagram.com/s.ruka_proque/"}, "miyuu-sato": {"tiktok": "https://www.tiktok.com/@03miyuu", "instagram": "https://www.instagram.com/s.miyuu_proque/"}, "aira-shikano": {
+  }, "haruka-kakutani": {"x": "https://x.com/proque_00oo", "instagram": "https://www.instagram.com/k.haruka_proque/"}, "ren-kawakita": {"instagram": "https://www.instagram.com/k.ren_proque/"}, "moka-kawaguchi": {"x": "https://x.com/mccmk_", "instagram": "https://www.instagram.com/k.moka_proque/"}, "nasuzu-koyama": {"instagram": "https://www.instagram.com/k.nasuzu_proque/"}, "mao-saito": {"instagram": "https://www.instagram.com/s.mao_proque/", "x": "https://x.com/mao_proque"}, "aimi-sato": {"instagram": "https://www.instagram.com/s.aimi_proque/", "tiktok": "https://www.tiktok.com/@aimi_purin_1216"}, "ruka-sato": {"instagram": "https://www.instagram.com/s.ruka_proque/"}, "miyuu-sato": {"tiktok": "https://www.tiktok.com/@03miyuu", "instagram": "https://www.instagram.com/s.miyuu_proque/"}, "aira-shikano": {
 "instagram": "https://www.instagram.com/s.aira_proque/",
       "x": "https://x.com/ai__ra0619",
       tiktok: 'https://www.tiktok.com/@ai_ra619'
@@ -1884,52 +1943,53 @@ function renderList(){
 })();
 
 
-// === Team pill -> switch to team overview (single-page) — DOM-driven version ===
+// === Team pill -> switch to team overview (Eval-aware) ===
 (function(){
-  // Remove any previous patch to avoid duplicates
-  if (window.__teamPillWiredV2) return;
-  window.__teamPillWiredV2 = true;
+  if (window.__teamPillWiredV4) return;
+  window.__teamPillWiredV4 = true;
 
-  function findEval3TeamButton(team){
-    // Strategy: look for a submenu/section that mentions "Evaluation 3"
-    // and inside it, find a .team-option whose text equals the team.
-    const allTeamButtons = Array.from(document.querySelectorAll('.team-option'));
-    if (!allTeamButtons.length) return null;
+  function findTeamButton(evalRound, team){
+    const all = Array.from(document.querySelectorAll('.team-option'));
+    if (!all.length) return null;
+    const normTeam = (team || '').trim();
+    if (!normTeam) return null;
 
-    // Prefer a button under a section that mentions Evaluation 3
-    const eval3Candidates = allTeamButtons.filter(btn => {
-      const sec = btn.closest('[data-eval]') || btn.closest('.submenu') || btn.parentElement;
-      const txt = (sec && sec.textContent) ? sec.textContent : '';
-      return /Evaluation\s*3/i.test(txt);
-    });
+    // Prefer exact eval match if provided
+    let candidates = all;
+    if (evalRound) {
+      candidates = all.filter(btn => (btn.getAttribute('data-eval') || '').trim() === evalRound);
+      if (!candidates.length) candidates = all;
+    }
 
-    const matchInEval3 = eval3Candidates.find(b => (b.textContent||'').trim() === team);
-    if (matchInEval3) return matchInEval3;
-
-    // Fallback: any matching team-option
-    return allTeamButtons.find(b => (b.textContent||'').trim() === team) || null;
+    return candidates.find(b => (b.textContent || '').trim() === normTeam) || null;
   }
 
-  window.goToTeam = function(team){
-    if (!team) return;
-    const btn = findEval3TeamButton(team);
-    if (btn) {
-      // Simulate a user click to trigger the app's own logic.
-      btn.click();
-      // Ensure we are not stuck in detail view
-      if (location.hash) location.hash = '';
-      try { window.scrollTo({top: 0, behavior: 'instant'}); } catch(e) {}
-    } else {
-      console.warn('Team option not found in menu:', team);
+  function goToTeam(evalRound, team){
+    const btn = findTeamButton(evalRound, team);
+    if (!btn) {
+      console.warn('Team option not found for', evalRound, team);
+      return;
     }
-  };
 
-  // Delegated click (and keyboard) on the team badge in the profile header
+    // Clear profile hash so onHash() returns to overview
+    if (location.hash) {
+      try { location.hash = ''; } catch(_){}
+    }
+
+    // Trigger the existing team-option logic (sets evalRound, team, label, renderList)
+    btn.click();
+
+    try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch(_){}
+  }
+
   document.addEventListener('click', function(e){
     const pill = e.target && (e.target.closest ? e.target.closest('.team-badge') : null);
     if (!pill) return;
-    const team = (pill.getAttribute('data-team') || pill.textContent || '').trim();
-    if (team) { e.preventDefault(); goToTeam(team); }
+    const team = (pill.getAttribute('data-team') || '').trim();
+    if (!team) return;
+    const evalRound = (pill.getAttribute('data-eval') || '').trim();
+    e.preventDefault();
+    goToTeam(evalRound || 'Evaluation 3', team);
   }, true);
 
   document.addEventListener('keydown', function(e){
@@ -1937,12 +1997,16 @@ function renderList(){
     if (!t || !(t.classList && t.classList.contains('team-badge'))) return;
     if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
       e.preventDefault();
-      const team = (t.getAttribute('data-team') || t.textContent || '').trim();
-      if (team) goToTeam(team);
+      const team = (t.getAttribute('data-team') || '').trim();
+      if (!team) return;
+      const evalRound = (t.getAttribute('data-eval') || '').trim();
+      goToTeam(evalRound || 'Evaluation 3', team);
     }
   }, true);
 })();
 // === End patch ===
+
+
 
 </script>
 
@@ -2050,3 +2114,25 @@ document.addEventListener('DOMContentLoaded', function(){
 
 </body>
 </html>
+<style>
+/* Evaluation 4 team overview: 3 x 2 grid (desktop), responsive down */
+.grid.eval4-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  justify-content: center;
+  column-gap: 0.5rem;   /* tighten horizontal spacing */
+  row-gap: 1.5rem;    /* keep nice vertical spacing */
+  max-width: 800px;  /* keeps the group nicely centered */
+  margin: 0 auto;
+}
+@media (max-width: 860px) {
+  .grid.eval4-three {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 0.8rem;
+  }
+}
+@media (max-width: 520px) {
+  .grid.eval4-three {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
