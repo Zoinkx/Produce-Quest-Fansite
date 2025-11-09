@@ -1330,32 +1330,43 @@ Object.entries(EVAL4_GROUPS).forEach(([team, members]) => {
   // Keys must match the eval label produced by the menu code (e.g. "Evaluation 3")
   const TEAM_VIDEOS = {
   'Evaluation 3': {
-            'Team A': {
+    'Team A': {
       title: 'Re:Start!!!!! - Snow Halation',
       url: 'https://www.youtube.com/watch?v=hXsY0U9zZuA'
     },
-'Team B': {
-      title: '絶対アイドル辞めないで / キューティー♡パピヨン Cover',
+    'Team B': {
+      title: '絶対アイドル辞めないで / キューティー♡パピヨン Cover',
       url: 'https://www.youtube.com/watch?v=_iOy0mMzyyc'
     },
     'Team C': {
-      title: '最上級にかわいいの！/ 超♡にこにこ宣伝部 Cover',
+      title: '最上級にかわいいの！ / 超♡にこにこ宣伝部 Cover',
       url: 'https://www.youtube.com/watch?v=X_iZ0_x_QFg'
     },
     'Team D': {
-      title: '♡♡♡わんだーらんど / pink rabbit♡ Cover',
+      title: '♡♡♡わんだーらんど / pink rabbit♡ Cover',
       url: 'https://www.youtube.com/watch?v=s5-RRUEX0lI'
     },
     'Team E': {
-      title: '仮契約のシンデレラ / 契約済のシンデレラ Cover',
+      title: '仮契約のシンデレラ / 契約済のシンデレラ Cover',
       url: 'https://www.youtube.com/watch?v=NbT_KcIa5Cw'
     },
     'Team F': {
       title: '明日の私に幸あれ / ふうりん♡かざん Cover',
       url: 'https://www.youtube.com/watch?v=cJf6KaF6dXo'
     }
-
-}
+  },
+  'Evaluation 4': {
+    'Team A': [
+      {
+        title: 'Brand New Quest',
+        url: 'https://www.youtube.com/watch?v=hgHvJG-kH60&t=4949s'
+      },
+      {
+        title: '笑顔と本気と夢=No1!; Smile and Truth and Dream = No1!',
+        url: 'https://www.youtube.com/watch?v=hgHvJG-kH60&t=5268s'
+      }
+    ]
+  }
 };
 
   const campEvalByTeam = {
@@ -1812,6 +1823,7 @@ const key = state.sortKey;
     });
   }
 
+
 function renderList(){
     const q = state.q.trim().toLowerCase();
     const teamF = (state.team||'').toLowerCase();
@@ -1822,7 +1834,10 @@ function renderList(){
       const team = parseTeam(c);
       const teamMatch = !teamF || (team && team.toLowerCase()===teamF);
       const isOut = ELIMINATED.has((c.slug||slugify(c.name)));
-      const statusMatch = (state.statusFilter==='all') || (state.statusFilter==='in' && !isOut) || (state.statusFilter==='out' && isOut);
+      const statusMatch =
+        (state.statusFilter === 'all') ||
+        (state.statusFilter === 'in' && !isOut) ||
+        (state.statusFilter === 'out' && isOut);
       const favMatch = (state.sortKey !== 'favorites') || isFav((c.slug||slugify(c.name)));
 
       return nameMatch && teamMatch && statusMatch && favMatch;
@@ -1836,18 +1851,25 @@ function renderList(){
         cls = 'five';
       }
     }
+
     els.gridWrap.innerHTML = cardHTMLWrap(filtered, cls);
-      // Append team video if available for the selected evaluation + team
-      try {
-        if (state.evalRound && state.team && TEAM_VIDEOS[state.evalRound] && TEAM_VIDEOS[state.evalRound][state.team]) {
-          const v = TEAM_VIDEOS[state.evalRound][state.team];
+
+    // Append team video(s) if available for the selected evaluation + team
+    try {
+      if (state.evalRound && state.team && TEAM_VIDEOS[state.evalRound] && TEAM_VIDEOS[state.evalRound][state.team]) {
+        const entry = TEAM_VIDEOS[state.evalRound][state.team];
+        const vids = Array.isArray(entry) ? entry : [entry];
+        vids.forEach(v => {
+          if (!v || !v.url) return;
           const src = toEmbed(v.url);
           if (src) {
             els.gridWrap.innerHTML += '<section class="videos">' + video(v.title, src) + '</section>';
           }
-        }
-      } catch (_) {}
+        });
+      }
+    } catch (_) {}
 }
+
 
   setOrderButtonLabel();
   renderList();
