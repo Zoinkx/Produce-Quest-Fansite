@@ -1180,7 +1180,8 @@ input[type="range"]#rate_personality::-moz-range-thumb{
     sortKey: 'name',
     sortDir: 'asc',        // asc | desc
     q: '',
-    evalRound: ''
+    evalRound: '',
+    groupedOverview: false // true when showing Evaluation X - All Teams overview
   };
 
   const els = {
@@ -1688,54 +1689,169 @@ const key = state.sortKey;
     'Evaluation 3 Teams': ['Team A','Team B','Team C','Team D','Team E','Team F'],
     'Evaluation 4 Teams': ['Team A','Team B','Team C']
   };
-  function buildEvalMenu(){
-    const menu = els.evalMenu;
-    menu.innerHTML = '';
-    const allItem = document.createElement('div');
-    allItem.className = 'eval-item';
-    allItem.textContent = 'All Teams';
-    allItem.addEventListener('click', ()=>{
-      state.team = '';
-      els.evalTriggerLabel.textContent = 'All Teams';
-      menu.classList.remove('open');
-      els.evalTrigger.setAttribute('aria-expanded','false');
-      renderList();
-    });
-    menu.appendChild(allItem);
+  
+  function renderEvalOverview(evalRound){
+    state.evalRound = evalRound;
+    state.team = '';
+    state.groupedOverview = true;
+    els.evalTriggerLabel.textContent = evalRound + ' - All Teams';
 
-    Object.keys(EVALUATIONS).forEach(evalName=>{
-      const item = document.createElement('div');
-      item.className = 'eval-item';
-      item.textContent = evalName;
+    const q = state.q.trim().toLowerCase();
 
-      const sub = document.createElement('div');
-      sub.className = 'team-submenu';
+    function baseAllowed(c){
+      const name = (c.name || '');
+      const slug = c.slug || slugify(name);
+      const isOut = ELIMINATED.has(slug);
 
-      (EVALUATIONS[evalName]||[]).forEach(team=>{
-        const b = document.createElement('button');
-        b.className = 'team-option';
-        b.type = 'button';
-        b.textContent = team;
-        const evalShort = evalName.replace(/\s*Teams\s*$/i,''); // "Evaluation 3", "Evaluation 4"
-        b.setAttribute('data-eval', evalShort);
-        b.addEventListener('click', (e)=>{
-          e.stopPropagation();
-          state.team = team;
-          els.evalTriggerLabel.textContent = evalShort + ' - ' + team;
-          state.evalRound = evalShort;
-          menu.classList.remove('open');
-          els.evalTrigger.setAttribute('aria-expanded','false');
-          renderList();
-        });
-        sub.appendChild(b);
+      const nameMatch = name.toLowerCase().includes(q);
+
+      const statusMatch =
+        (state.statusFilter === 'all') ||
+        (state.statusFilter === 'in' && !isOut) ||
+        (state.statusFilter === 'out' && isOut);
+
+      const favMatch =
+        (state.sortKey !== 'favorites') || isFav(slug);
+
+      return nameMatch && statusMatch && favMatch;
+    }
+
+    let htmlOut = '';
+
+    if (evalRound === 'Evaluation 3') {
+      const teams = ['Team A','Team B','Team C','Team D','Team E','Team F'];
+
+      teams.forEach(team => {
+        const members = state.data.contestants
+          .filter(c => {
+            if (!baseAllowed(c)) return false;
+            const r2 = parseRound2(c);
+            return r2.team === team;
+          })
+          .sort(comparator(state.sortKey, state.sortDir));
+
+        if (!members.length) return;
+
+        htmlOut += `
+          <section class="team-section">
+            <div class="team-heading">${team}</div>
+            <div class="grid five">
+              ${members.map(cardHTML).join('')}
+            </div>
+          </section>
+        `;
       });
+    }
 
-      item.appendChild(sub);
-      menu.appendChild(item);
-    });
+    if (evalRound === 'Evaluation 4') {
+      const teams = Object.keys(EVAL4_GROUPS);
+
+      teams.forEach(team => {
+        const slugs = EVAL4_GROUPS[team] || [];
+        const members = slugs
+          .map(slug => state.data.contestants.find(c => (c.slug || slugify(c.name)) === slug))
+          .filter(c => c && baseAllowed(c))
+          .sort(comparator(state.sortKey, state.sortDir));
+
+        if (!members.length) return;
+
+        htmlOut += `
+          <section class="team-section">
+            <div class="team-heading">${team}</div>
+            <div class="grid eval4-three">
+              ${members.map(cardHTML).join('')}
+            </div>
+          </section>
+        `;
+      });
+    }
+
+    if (!htmlOut) {
+      renderList();
+      return;
+    }
+
+    els.gridWrap.innerHTML = htmlOut;
   }
 
-  // Events
+
+
+  function rerenderMainGrid(){
+    if (state.groupedOverview && state.evalRound && !state.team) {
+      renderEvalOverview(state.evalRound);
+    } else {
+      renderList();
+    }
+  }
+
+function buildEvalMenu(){
+  const menu = els.evalMenu;
+  menu.innerHTML = '';
+
+  // "All Teams" resets filters
+  const allItem = document.createElement('div');
+  allItem.className = 'eval-item';
+  allItem.textContent = 'All Teams';
+  allItem.addEventListener('click', () => {
+    state.team = '';
+    state.evalRound = '';
+    state.groupedOverview = false;
+    els.evalTriggerLabel.textContent = 'All Teams';
+    menu.classList.remove('open');
+    els.evalTrigger.setAttribute('aria-expanded','false');
+    renderList();
+  });
+  menu.appendChild(allItem);
+
+  Object.keys(EVALUATIONS).forEach(evalName => {
+    const item = document.createElement('div');
+    item.className = 'eval-item';
+    item.textContent = evalName;
+
+    const sub = document.createElement('div');
+    sub.className = 'team-submenu';
+
+    (EVALUATIONS[evalName] || []).forEach(team => {
+      const b = document.createElement('button');
+      b.className = 'team-option';
+      b.type = 'button';
+      b.textContent = team;
+
+      const evalShort = evalName.replace(/\s*Teams\s*$/i, ''); // "Evaluation 3", "Evaluation 4"
+      b.setAttribute('data-eval', evalShort);
+
+      // Single-team behavior (unchanged)
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.team = team;
+        state.evalRound = evalShort;
+        state.groupedOverview = false;
+        els.evalTriggerLabel.textContent = evalShort + ' - ' + team;
+        menu.classList.remove('open');
+        els.evalTrigger.setAttribute('aria-expanded','false');
+        renderList();
+      });
+
+      sub.appendChild(b);
+    });
+
+    // Parent item click -> grouped overview (all teams for that evaluation)
+    item.addEventListener('click', (e) => {
+      // Ignore if the click originated from inside submenu buttons
+      if (e.target.closest('.team-submenu') || e.target.classList.contains('team-option')) return;
+      const evalShort = evalName.replace(/\s*Teams\s*$/i, '');
+      menu.classList.remove('open');
+      els.evalTrigger.setAttribute('aria-expanded','false');
+      renderEvalOverview(evalShort);
+    });
+
+    item.appendChild(sub);
+    menu.appendChild(item);
+  });
+}
+
+// Events
+
   buildEvalMenu();
 
   els.evalTrigger.addEventListener('click', (e)=>{
@@ -1752,12 +1868,30 @@ const key = state.sortKey;
     }
   });
 
-  document.getElementById('search').addEventListener('input', e=>{ state.q = e.target.value; renderList(); });
-  document.getElementById('sortKey').addEventListener('change', e=>{ state.sortKey = e.target.value; state.sortDir='asc'; setOrderButtonLabel(); renderList(); });
-  document.getElementById('sortDirBtn').addEventListener('click', ()=>{ state.sortDir = (state.sortDir==='asc'?'desc':'asc'); setOrderButtonLabel(); renderList(); });
+  
+  // Search
+  document.getElementById('search').addEventListener('input', (e) => {
+    state.q = e.target.value;
+    rerenderMainGrid();
+  });
+
+  // Sort key
+  document.getElementById('sortKey').addEventListener('change', (e) => {
+    state.sortKey = e.target.value;
+    state.sortDir = 'asc';
+    setOrderButtonLabel();
+    rerenderMainGrid();
+  });
+
+  // Sort direction
+  document.getElementById('sortDirBtn').addEventListener('click', () => {
+    state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+    setOrderButtonLabel();
+    rerenderMainGrid();
+  });
 
   // Filters panel show/hide
-  document.getElementById('filterPanelBtn').addEventListener('click', ()=>{
+  document.getElementById('filterPanelBtn').addEventListener('click', () => {
     const p = document.getElementById('filtersPanel');
     const open = !p.classList.contains('visible');
     p.classList.toggle('visible', open);
@@ -1765,24 +1899,34 @@ const key = state.sortKey;
   });
 
   // Status buttons
-  document.querySelectorAll('.status-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      document.querySelectorAll('.status-btn').forEach(b=>{ b.classList.toggle('active', b===btn); b.setAttribute('aria-selected', String(b===btn)); });
+  document.querySelectorAll('.status-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.status-btn').forEach((b) => {
+        const on = b === btn;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', String(on));
+      });
       state.statusFilter = btn.dataset.status;
-      renderList();
+      rerenderMainGrid();
     });
   });
 
-  // Grey out switch
-  document.getElementById('greyOutSwitch').addEventListener('change', (e)=>{
+  // Grey out eliminated
+  document.getElementById('greyOutSwitch').addEventListener('change', (e) => {
     state.showStatus = !!e.target.checked;
-    renderList();
+    rerenderMainGrid();
   });
 
+  // Show details switch
   const sds = document.getElementById('showDetailsSwitch');
-  if (sds) sds.addEventListener('change', (e)=>{ state.showDetails = !!e.target.checked; renderList(); });
+  if (sds) {
+    sds.addEventListener('change', (e) => {
+      state.showDetails = !!e.target.checked;
+      rerenderMainGrid();
+    });
+  }
 
-  // Detail view nav (keep existing behavior if present)
+// Detail view nav (keep existing behavior if present)
   function onHash(){
     const m = (location.hash||'').match(/^#\/member\/([a-z0-9-]+)/);
     if (m) {
