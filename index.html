@@ -1423,6 +1423,17 @@ function renderDetail(slug) {
       const stage3Raw = stage3EvalByTeam[round2Team];
       const stage3 = toEmbed(stage3Raw);
       if (round2Team && stage3) videos.push({title:'Stage 3 Evaluation — ' + round2Team, src:stage3});
+
+      const eval4VideosByTeam = (TEAM_VIDEOS['Evaluation 4'] || {});
+      if (eval4Team && eval4VideosByTeam[eval4Team]) {
+        const entry = eval4VideosByTeam[eval4Team];
+        const list = Array.isArray(entry) ? entry : [entry];
+        list.forEach(v => {
+          const src = toEmbed(v.url);
+          if (src) videos.push({ title: v.title, src });
+        });
+      }
+
       const current = userRatings[slugKey] || { cute: 0, sing: 0, dance: 0, visuals: 0, personality: 0 };
 
       function inputRow(key, label, valId) {
