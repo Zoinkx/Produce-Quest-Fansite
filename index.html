@@ -503,7 +503,7 @@ input[type="range"]#rate_personality::-moz-range-thumb{
   justify-self: end;
   margin-top: 4px;
 }
-#evalTriggerLabel{ font-size:15px; color:var(--ink); font-weight:700; }
+#evalTriggerLabel{ font-size:15px; color:var(--ink); font-weight:500; }
 
 /* --- enforce medium weight 500 and sizes across filter UI --- */
 .status-btn,
@@ -542,43 +542,45 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 
 
 
-/* === Inline Filters: balanced spacing fix (v17) === */
+/* === Inline Filters: filters row layout (one-line desktop) === */
 .filters-grid{
-  display:flex !important;
-  align-items:flex-start !important;
-  justify-content:flex-start !important;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:flex-end;
+  justify-content:center;
+  gap:32px;
   width:100%;
-  flex-wrap:nowrap !important;
 }
+
 .filters-grid > div{
-  display:flex !important;
-  flex-direction:column !important;
-  justify-content:flex-start !important;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
 }
-/* Adjust spacing using margins for balance */
-.filters-grid > div:nth-child(2){
-  margin-left:75px !important;  /* Grey out eliminated closer to Status */
-}
-.filters-grid > div:nth-child(3){
-  margin-left:90px !important;  /* Show details more central */
-}
-.filters-grid > div:nth-child(4){
-  margin-left:auto !important;
-  align-items:flex-start !important; /* keep Team Filter left aligned */
-}
-/* Center the toggles under titles */
-.filters-grid > div:nth-child(2),
-.filters-grid > div:nth-child(3){
-  align-items:center !important;
-}
+
+/* Titles spacing */
 .subhead{
-  margin-bottom:8px !important;
+  margin-bottom:8px;
 }
 
+/* Keep toggles nicely centered under their headings */
+.filters-grid > div:nth-child(3),
+.filters-grid > div:nth-child(4){
+  align-items:center;
+}
 
-
-
-</style>
+/* Small screens: allow stacking elegantly */
+@media (max-width: 900px){
+  .filters-grid{
+    gap:16px 24px;
+  }
+}
+@media (max-width: 640px){
+  .filters-grid{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}</style>
 
 <style>
 
@@ -617,7 +619,7 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 .controls{ grid-template-columns: 0.85fr auto auto auto auto auto auto; }
 @media (max-width: 860px){ .controls{ grid-template-columns: 1fr; } }
 
-#evalTriggerLabel{ font-size:15px; color:var(--ink); font-weight:700; }
+#evalTriggerLabel{ font-size:15px; color:var(--ink); font-weight:500; }
 </style>
 <style>
 /* --- PQ Socials patch v5 (exact spacing match) --- */
@@ -639,7 +641,7 @@ input[type="range"]#rate_personality::-moz-range-thumb{
         text-decoration:none; transition: transform .12s ease, background .12s ease; }
 .sico:hover { background:#ffe6f2; transform: translateY(-1px); }
 .sico svg { width:24px; height:24px; }
-#evalTriggerLabel{ font-size:15px; color:var(--ink); font-weight:700; }
+#evalTriggerLabel{ font-size:15px; color:var(--ink); font-weight:500; }
 </style>
 
 <style>
@@ -708,7 +710,7 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 .section.box .rows .row .topline .score::after {
   color: var(--light-gray) !important;
 }
-#evalTriggerLabel{ font-size:15px; color:var(--ink); font-weight:700; }
+#evalTriggerLabel{ font-size:15px; color:var(--ink); font-weight:500; }
 </style>
 
 
@@ -738,7 +740,7 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 
 .namebox .pill-elim { display:block; margin-left:0; margin-top:4px; }
 
-#evalTriggerLabel{ font-size:15px; color:var(--ink); font-weight:700; }
+#evalTriggerLabel{ font-size:15px; color:var(--ink); font-weight:500; }
 </style>
 
 
@@ -748,8 +750,6 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 .filter-btn:hover{ background:#ffe6f2; transform:translateY(-1px); }
 .filters-panel{ display:none; background:#fff; border:1px solid #f3c2d7; border-radius:12px; box-shadow: var(--shadow); padding:12px; margin-top:8px; }
 .filters-panel.visible{ display:block; }
-.filters-grid{ display:grid; grid-template-columns: 1fr; gap:10px; align-items:start; }
-@media (min-width:900px){ .filters-grid{ grid-template-columns: repeat(3, minmax(220px,1fr)); } }
 .subhead{ font-weight:800; color:#b14b7a; font-size:14px; margin-bottom:6px; }
 .status-toggle{ display:flex; gap:8px; flex-wrap:wrap; }
 .status-btn{ border:1px solid #f3c2d7; background:#fff; border-radius:999px; padding:8px 12px; cursor:pointer; font-weight:700;  font-size:14px;}
@@ -775,8 +775,52 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 .slider:before{ position:absolute; content:""; height:24px; width:24px; left:3px; top:2px; background:#fff; border:1px solid #c6b6c6; transition:.2s; border-radius:50%; box-shadow:var(--shadow); }
 .switch input:checked + .slider{ background-color:#ffcde3; border-color:#f3c2d7; }
 .switch input:checked + .slider:before{ transform:translateX(22px); }
-#evalTriggerLabel{ font-size:15px; color:var(--ink); font-weight:700; }
-</style>
+#evalTriggerLabel{ font-size:15px; color:var(--ink); font-weight:500; }
+
+
+/* --- Elimination Status dropdown --- */
+.status-dropdown{
+  position:relative;
+  min-width: 190px;
+}
+.status-trigger{
+  width:100%;
+  background:#fff;
+  border:1px solid #f3c2d7;
+  border-radius:12px;
+  padding:10px 12px;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  font-weight:500;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.status-trigger:hover{
+  background:#ffe6f2;
+}
+.status-menu{
+  position:absolute;
+  top:calc(100% + 6px);
+  left:0;
+  width:100%;
+  background:#fff;
+  border:1px solid #f3c2d7;
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  z-index:20;
+  display:none;
+}
+.status-menu.open{ display:block; }
+.status-option{
+  padding:9px 12px;
+  cursor:pointer;
+  font-weight:500;
+}
+.status-option:hover{
+  background:#ffe6f2;
+}</style>
 
 
 <style>
@@ -1100,35 +1144,25 @@ input[type="range"]#rate_personality::-moz-range-thumb{
     </section>
 
     <!-- Advanced Filters Panel -->
-    <section id="filtersPanel" class="filters-panel" aria-label="Advanced filters" aria-hidden="true">
+        <section id="filtersPanel" class="filters-panel" aria-label="Advanced filters" aria-hidden="true">
       <div class="filters-grid">
-        <!-- Status -->
+        <!-- Elimination Status -->
         <div>
-          <div class="subhead">Status</div>
-          <div class="status-toggle" role="tablist" aria-label="Status filter">
-            <button class="status-btn active" data-status="all" aria-selected="true">All</button>
-            <button class="status-btn" data-status="in" aria-selected="false">Active</button>
-            <button class="status-btn" data-status="out" aria-selected="false">Eliminated</button>
+          <div class="subhead">Elimination Status</div>
+          <div class="status-dropdown">
+            <button id="statusTrigger" class="status-trigger" type="button" aria-haspopup="true" aria-expanded="false">
+              <span id="statusTriggerLabel">All Statuses</span>
+              <span>▾</span>
+            </button>
+            <div id="statusMenu" class="status-menu" role="menu">
+              <div class="status-option" data-status="all">All Statuses</div>
+              <div class="status-option" data-status="elim-all">All Eliminated</div>
+              <div class="status-option" data-status="elim3">Eliminated in Eval 3</div>
+              <div class="status-option" data-status="elim4">Eliminated in Eval 4</div>
+              <div class="status-option" data-status="debuted">Debuted</div>
+            </div>
+
           </div>
-        </div>
-
-        <!-- Grey out eliminated -->
-        <div>
-          <div class="subhead">Grey out eliminated</div>
-          <label class="switch" aria-label="Grey out eliminated">
-            <input id="greyOutSwitch" type="checkbox">
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        
-        <!-- Show details toggle -->
-        <div>
-          <div class="subhead">Show details</div>
-          <label class="switch" aria-label="Show details">
-            <input id="showDetailsSwitch" type="checkbox">
-            <span class="slider"></span>
-          </label>
         </div>
 
         <!-- Team Filter -->
@@ -1141,6 +1175,24 @@ input[type="range"]#rate_personality::-moz-range-thumb{
             </button>
             <div id="evalMenu" class="eval-menu" role="menu" aria-label="Choose evaluation and team"></div>
           </div>
+        </div>
+
+        <!-- Grey out eliminated -->
+        <div>
+          <div class="subhead">Grey out eliminated</div>
+          <label class="switch" aria-label="Grey out eliminated">
+            <input id="greyOutSwitch" type="checkbox">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <!-- Show details toggle -->
+        <div>
+          <div class="subhead">Show details</div>
+          <label class="switch" aria-label="Show details">
+            <input id="showDetailsSwitch" type="checkbox">
+            <span class="slider"></span>
+          </label>
         </div>
       </div>
     </section>
@@ -1174,7 +1226,7 @@ input[type="range"]#rate_personality::-moz-range-thumb{
     data: JSON.parse(document.getElementById('contestantsData').textContent),
     filtered: [],
     team: '',
-    statusFilter: 'all',   // all | in | out
+    statusFilter: 'all',   // all | elim3 | elim4 | debuted
     showStatus: false,     // grey out eliminated
     showDetails: false,    // show extra details in cards
     sortKey: 'name',
@@ -1205,14 +1257,64 @@ input[type="range"]#rate_personality::-moz-range-thumb{
   // Restore logo
   if (state.data.logo_url) els.logoImg.src = state.data.logo_url;
 
-  // Eliminated list (keep your list)
-  const ELIMINATED_NAMES = ["Nasuzu Koyama","Aimi Sato","Ren Kawakita","Kohime Nozaki","Ruri Enomoto","Ruka Sato","Yu Seto","Aira Shikano","Arisu Kawamatsu","Aimi Horinouchi","Fuuka Nagaike","Kaede Mori"];
-  const slugify = s => (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
-  const ELIMINATED = new Set(ELIMINATED_NAMES.map(n=>slugify(n)));
+  // Eliminated + debut lists and slug helper
+
+  // Slugify helper for names → URL slugs
+  const slugify = s =>
+    (s || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
+  // Eliminated in Evaluation 3
+  const ELIM3 = new Set([
+    "Nasuzu Koyama",
+    "Aimi Sato",
+    "Ren Kawakita",
+    "Kohime Nozaki",
+    "Ruri Enomoto",
+    "Ruka Sato",
+    "Yu Seto",
+    "Aira Shikano",
+    "Arisu Kawamatsu",
+    "Aimi Horinouchi",
+    "Fuuka Nagaike",
+    "Kaede Mori"
+  ].map(name => slugify(name)));
+
+  // Eliminated in Evaluation 4
+  const ELIM4 = new Set([
+    "Amane Yunoki",
+    "Haruka Kakutani",
+    "Kaaya Yoneyama",
+    "Kaworu Hayashi",
+    "Nana Hashimoto",
+    "Neiro Tanaka",
+    "Reika Takeuchi",
+    "Saaya Takaki",
+    "Moka Kawaguchi"
+  ].map(name => slugify(name)));
+
+  // Debuted members (not eliminated)
+  const DEBUTED = new Set([
+    "Miyuu Sato",
+    "Karen Otsubo",
+    "Miyabi Yamamoto",
+    "Rana Iwase",
+    "Choko Yoshida",
+    "Nicoa Furuse",
+    "Mao Saito",
+    "Mimi Ueki",
+    "Aimi Inuzuka"
+  ].map(name => slugify(name)));
+
+  // Combined eliminated (Eval 3 + Eval 4)
+  const ELIMINATED = new Set([...ELIM3, ...ELIM4]);
 
   // Ratings storage
   // Favorites storage
-  const FAV_KEY = 'pq_favorites_v1';
+
+const FAV_KEY = 'pq_favorites_v1';
   function loadFavs(){
     try{
       const arr = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
@@ -1734,19 +1836,26 @@ const key = state.sortKey;
     function baseAllowed(c){
       const name = (c.name || '');
       const slug = c.slug || slugify(name);
-      const isOut = ELIMINATED.has(slug);
 
       const nameMatch = name.toLowerCase().includes(q);
 
+      const isElim3 = ELIM3.has(slug);
+      const isElim4 = ELIM4.has(slug);
+      const isDebut = DEBUTED.has(slug);
+      const isElimAll = isElim3 || isElim4;
+
       const statusMatch =
         (state.statusFilter === 'all') ||
-        (state.statusFilter === 'in' && !isOut) ||
-        (state.statusFilter === 'out' && isOut);
+        (state.statusFilter === 'elim-all' && isElimAll) ||
+        (state.statusFilter === 'elim3' && isElim3) ||
+        (state.statusFilter === 'elim4' && isElim4) ||
+        (state.statusFilter === 'debuted' && isDebut);
 
       const favMatch =
         (state.sortKey !== 'favorites') || isFav(slug);
 
       return nameMatch && statusMatch && favMatch;
+
     }
 
     let htmlOut = '';
@@ -1931,18 +2040,36 @@ function buildEvalMenu(){
     p.setAttribute('aria-hidden', String(!open));
   });
 
-  // Status buttons
-  document.querySelectorAll('.status-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.status-btn').forEach((b) => {
-        const on = b === btn;
-        b.classList.toggle('active', on);
-        b.setAttribute('aria-selected', String(on));
-      });
-      state.statusFilter = btn.dataset.status;
-      rerenderMainGrid();
+  // Elimination Status dropdown
+  const statusTrigger = document.getElementById('statusTrigger');
+  const statusTriggerLabel = document.getElementById('statusTriggerLabel');
+  const statusMenu = document.getElementById('statusMenu');
+
+  if (statusTrigger && statusMenu && statusTriggerLabel) {
+    statusTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = !statusMenu.classList.contains('open');
+      statusMenu.classList.toggle('open', open);
+      statusTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
-  });
+
+    document.querySelectorAll('.status-option').forEach((opt) => {
+      opt.addEventListener('click', () => {
+        const status = opt.dataset.status || 'all';
+        const label = opt.textContent.trim() || 'All Statuses';
+        state.statusFilter = status;
+        statusTriggerLabel.textContent = label;
+        statusMenu.classList.remove('open');
+        statusTrigger.setAttribute('aria-expanded', 'false');
+        rerenderMainGrid();
+      });
+    });
+
+    document.addEventListener('click', () => {
+      statusMenu.classList.remove('open');
+      statusTrigger.setAttribute('aria-expanded', 'false');
+    });
+  }
 
   // Grey out eliminated
   document.getElementById('greyOutSwitch').addEventListener('change', (e) => {
@@ -2010,12 +2137,20 @@ function renderList(){
       const nameMatch = (c.name||'').toLowerCase().includes(q);
       const team = parseTeam(c);
       const teamMatch = !teamF || (team && team.toLowerCase()===teamF);
-      const isOut = ELIMINATED.has((c.slug||slugify(c.name)));
+      const slug = (c.slug||slugify(c.name));
+      const isElim3 = ELIM3.has(slug);
+      const isElim4 = ELIM4.has(slug);
+      const isDebut = DEBUTED.has(slug);
+      const isElimAll = isElim3 || isElim4;
+
       const statusMatch =
         (state.statusFilter === 'all') ||
-        (state.statusFilter === 'in' && !isOut) ||
-        (state.statusFilter === 'out' && isOut);
-      const favMatch = (state.sortKey !== 'favorites') || isFav((c.slug||slugify(c.name)));
+        (state.statusFilter === 'elim-all' && isElimAll) ||
+        (state.statusFilter === 'elim3' && isElim3) ||
+        (state.statusFilter === 'elim4' && isElim4) ||
+        (state.statusFilter === 'debuted' && isDebut);
+
+      const favMatch = (state.sortKey !== 'favorites') || isFav(slug);
 
       return nameMatch && teamMatch && statusMatch && favMatch;
     });
