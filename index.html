@@ -728,7 +728,79 @@ input[type="range"]#rate_personality::-moz-range-thumb{
     transform: none;
   }
 }
+/* Center the dropdowns directly under their headings */
+.filters-grid > div:nth-child(1) .status-dropdown,
+.filters-grid > div:nth-child(2) .team-filter{
+  margin-left: auto;
+  margin-right: auto;
+}
 
+/* Keep toggles centered in their own cells */
+.filters-grid > div:nth-child(3) label.switch,
+.filters-grid > div:nth-child(4) label.switch{
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+@media (max-width: 640px){
+
+  /* 2 equal-width columns */
+  .filters-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:20px 24px;
+    width:100%;
+    align-items:center;
+  }
+
+  /* Left column (dropdowns) */
+  .filters-grid > div:nth-child(1),
+  .filters-grid > div:nth-child(2){
+    align-items:flex-start;
+    width:100%;
+  }
+
+  /* Right column (toggles) */
+  .filters-grid > div:nth-child(3),
+  .filters-grid > div:nth-child(4){
+    align-items:flex-end;
+    width:100%;
+  }
+
+  .filters-grid label.switch{
+    margin-top:6px;
+  }
+}
+
+@media (max-width: 640px){
+  /* Phone layout: neat 2-column filter grid, perfectly aligned */
+
+  .filters-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:20px 24px;
+    width:100%;
+    align-items:center;
+  }
+
+  /* Each cell = heading + control, centered in its column */
+  .filters-grid > div{
+    align-items:center;
+    width:100%;
+  }
+
+  /* Headings centered directly above their controls */
+  .filters-grid .subhead{
+    width:100%;
+    text-align:center;
+  }
+
+  /* Tiny spacing tweak for toggles */
+  .filters-grid label.switch{
+    margin-top:6px;
+  }
+}
 </style>
 
 <style>
