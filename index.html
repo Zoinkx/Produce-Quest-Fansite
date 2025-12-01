@@ -107,6 +107,7 @@
     .video h3 { margin:0 0 8px; font-size:22px; color:#b14b7a; }
     .video iframe { width:100%; aspect-ratio: 16/9; border:0; border-radius:14px; box-shadow: var(--shadow); }
 
+    /* --- Base Desktop Styles for Tabs --- */
     .videos-tabs {
       margin-top:16px;
       padding:12px 12px 16px;
@@ -115,10 +116,9 @@
       box-shadow:var(--shadow-soft);
       width:100%;
       box-sizing:border-box;
-      overflow:hidden;              /* lock this card to its width */
+      overflow:hidden;
     }
-
-    /* Stack rows vertically, fixed width */
+    
     .video-tabs {
       display:flex;
       flex-direction:column;
@@ -127,21 +127,19 @@
       box-sizing:border-box;
     }
 
-    /* Each row: 5 equal-width tabs; only THIS scrolls horizontally */
     .video-tabs-row {
       display:flex;
-      flex-wrap:nowrap;                 /* no wrapping inside a row */
+      flex-wrap:nowrap;                 /* Desktop: Single row */
       gap:4px;
       width:100%;
       box-sizing:border-box;
-      overflow-x:auto;                  /* row can scroll */
+      overflow-x:auto;                  
       overflow-y:hidden;
     }
 
-    /* Base tab: 5 per row, equal width */
     .video-tab {
       position: relative;
-      flex: 0 0 calc((100% - 4 * 4px) / 5);   /* 5 tabs per row with 4 gaps */
+      flex: 0 0 calc((100% - 4 * 4px) / 5);   /* Desktop: 5 tabs per row */
       max-width: calc((100% - 4 * 4px) / 5);
       border-radius: 12px 12px 0 0;
       padding: 6px 10px;
@@ -153,38 +151,26 @@
       color: #b57a9a;
       border: 1px solid rgba(0,0,0,0.06);
       cursor: pointer;
-
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-
       outline: none;
-      transition:
-        background 0.15s ease,
-        color 0.15s ease,
-        border-color 0.15s ease,
-        box-shadow 0.15s ease,
-        padding 0.15s ease,
-        flex-basis 0.15s ease,
-        max-width 0.15s ease;
+      transition: all 0.15s ease;
     }
 
-    /* Hover: expand horizontally inside its row, push neighbors; row scrolls */
+    /* Desktop Hover: expand */
     .video-tab:not(.active):hover {
       background: rgba(255,182,206,0.25);
       border-color: rgba(255,130,170,0.35);
       box-shadow: var(--shadow-soft);
       cursor: pointer;
-
-      flex-basis: auto;      /* grow to fit full title */
+      flex-basis: auto;      
       max-width: none;
       padding-left: 14px;
       padding-right: 14px;
-
-      text-overflow: clip;   /* no "..." when expanded */
+      text-overflow: clip;   
     }
 
-    /* Active tab */
     .video-tab.active {
       background:linear-gradient(135deg, #ffb5d1, #ffd7e6);
       color:#a0315e;
@@ -192,7 +178,6 @@
       box-shadow:var(--shadow-soft);
     }
 
-    /* Video panel wrapper – stays locked to card width */
     .video-panels {
       position:relative;
       border-radius:14px;
@@ -203,50 +188,60 @@
       box-sizing:border-box;
     }
 
-
     .video-panel { display:none; }
-    .video-panel.active { display:block; }\n
-    /* --- Override video tab layout on small screens (phones) --- */
-    @media (max-width: 800px) {
+    .video-panel.active { display:block; }
 
-      /* Keep the card within the viewport and allow content to wrap */
+    /* --- Mobile Overrides for Tabs (Applied AFTER desktop styles) --- */
+    @media (max-width: 560px) {
+
+      html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
       .videos-tabs {
         padding: 8px 6px 10px;
         border-radius: 14px;
-        overflow: visible;
+        overflow: visible; /* Allow content to fit */
       }
 
-      /* Tabs: wrap to multiple lines instead of sideways scrolling */
       .video-tabs-row {
-        flex-wrap: wrap;
-        overflow-x: visible;
+        flex-wrap: wrap !important; /* Force wrapping on mobile */
+        overflow-x: visible !important;
+        height: auto !important;
+        gap: 8px; /* Slightly larger gap for touch */
       }
 
-      /* Tabs become touch‑friendly buttons, 2 per row */
       .video-tab {
-        flex: 1 1 48%;
-        max-width: 48%;
+        /* On mobile: 2 items per row approx (48%) */
+        flex: 1 1 48% !important;
+        max-width: none !important; /* Allow growing */
         font-size: 12px;
-        padding: 8px 6px;
-        white-space: normal;
+        padding: 10px 8px; /* Bigger touch target */
+        white-space: normal !important; /* Allow text wrapping inside button */
         text-overflow: clip;
+        height: auto;
+        border-radius: 8px !important; /* Fully rounded looks better when stacked */
+        margin-bottom: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
       }
 
-      /* On touch devices we don't want hover to blow up the row */
+      /* Kill the hover expansion on mobile */
       .video-tab:not(.active):hover {
         flex-basis: 48% !important;
-        max-width: 48% !important;
-        padding-left: 8px !important;
-        padding-right: 8px !important;
+        max-width: none !important;
+        padding: 10px 8px;
+        transform: none !important;
       }
 
-      /* Ensure the actual video always fits the screen */
       .video iframe {
-        width: 100%;
-        max-width: 100%;
+        width: 100% !important;
+        max-width: 100% !important;
       }
     }
-
 
 
     /* Footer */
