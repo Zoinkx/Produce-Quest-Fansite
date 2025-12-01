@@ -117,56 +117,6 @@
       box-sizing:border-box;
       overflow:hidden;              /* lock this card to its width */
     }
-    
-    /* --- Mobile-friendly video tabs & video sizing --- */
-    @media (max-width: 560px) {
-
-      /* Never let the page go wider than the screen */
-      html, body {
-        max-width: 100%;
-        overflow-x: hidden;
-      }
-
-      /* Video card: keep it snug and avoid clipping */
-      .videos-tabs {
-        padding: 8px 6px 10px;
-        border-radius: 14px;
-        overflow: visible;       /* allow contents to wrap / be seen */
-      }
-
-      /* Tabs on phone:
-        - wrap to multiple lines
-        - no hidden overflow */
-      .video-tabs-row {
-        flex-wrap: wrap;
-        overflow-x: visible;
-      }
-
-      /* Tabs become touch-friendly buttons, 2 per row */
-      .video-tab {
-        flex: 1 1 48%;           /* ~2 tabs per row */
-        max-width: 48%;
-        font-size: 12px;
-        padding: 8px 6px;
-        white-space: normal;     /* allow text to wrap */
-        text-overflow: clip;
-      }
-
-      /* On touch devices we don't want hover to blow up the row */
-      .video-tab:not(.active):hover {
-        flex-basis: 48%;
-        max-width: 48%;
-        padding-left: 8px;
-        padding-right: 8px;
-      }
-
-      /* Ensure the actual video always fits the screen */
-      .video iframe {
-        width: 100%;
-        max-width: 100%;
-      }
-    }
-
 
     /* Stack rows vertically, fixed width */
     .video-tabs {
@@ -255,7 +205,49 @@
 
 
     .video-panel { display:none; }
-    .video-panel.active { display:block; }
+    .video-panel.active { display:block; }\n
+    /* --- Override video tab layout on small screens (phones) --- */
+    @media (max-width: 800px) {
+
+      /* Keep the card within the viewport and allow content to wrap */
+      .videos-tabs {
+        padding: 8px 6px 10px;
+        border-radius: 14px;
+        overflow: visible;
+      }
+
+      /* Tabs: wrap to multiple lines instead of sideways scrolling */
+      .video-tabs-row {
+        flex-wrap: wrap;
+        overflow-x: visible;
+      }
+
+      /* Tabs become touch‑friendly buttons, 2 per row */
+      .video-tab {
+        flex: 1 1 48%;
+        max-width: 48%;
+        font-size: 12px;
+        padding: 8px 6px;
+        white-space: normal;
+        text-overflow: clip;
+      }
+
+      /* On touch devices we don't want hover to blow up the row */
+      .video-tab:not(.active):hover {
+        flex-basis: 48% !important;
+        max-width: 48% !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+      }
+
+      /* Ensure the actual video always fits the screen */
+      .video iframe {
+        width: 100%;
+        max-width: 100%;
+      }
+    }
+
+
 
     /* Footer */
     .site-footer { flex:0 0 auto; display:flex; justify-content:center; align-items:center; padding:16px 12px 26px; }
