@@ -107,69 +107,107 @@
     .video h3 { margin:0 0 8px; font-size:22px; color:#b14b7a; }
     .video iframe { width:100%; aspect-ratio: 16/9; border:0; border-radius:14px; box-shadow: var(--shadow); }
 
-    
     .videos-tabs {
       margin-top:16px;
       padding:12px 12px 16px;
       border-radius:18px;
       background:rgba(255,255,255,0.8);
       box-shadow:var(--shadow-soft);
+      width:100%;
+      box-sizing:border-box;
+      overflow:hidden;              /* lock this card to its width */
     }
+
+    /* Stack rows vertically, fixed width */
     .video-tabs {
       display:flex;
-      flex-wrap:wrap;
+      flex-direction:column;
       gap:4px;
-      margin-bottom:8px;
-      padding-bottom:4px;
+      width:100%;
+      box-sizing:border-box;
     }
-    .video-tabs::-webkit-scrollbar { height:6px; }
-    .video-tabs::-webkit-scrollbar-track { background:transparent; }
-    .video-tabs::-webkit-scrollbar-thumb {
-      background:rgba(0,0,0,0.12);
-      border-radius:999px;
+
+    /* Each row: 5 equal-width tabs; only THIS scrolls horizontally */
+    .video-tabs-row {
+      display:flex;
+      flex-wrap:nowrap;                 /* no wrapping inside a row */
+      gap:4px;
+      width:100%;
+      box-sizing:border-box;
+      overflow-x:auto;                  /* row can scroll */
+      overflow-y:hidden;
     }
+
+    /* Base tab: 5 per row, equal width */
     .video-tab {
-      flex:0 0 auto;
-      border-radius:12px 12px 0 0;
-      padding:6px 10px;
-      font-size:11px;
-      font-weight:800;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      background:rgba(255,255,255,0.7);
-      color:#b57a9a;
-      border:1px solid rgba(0,0,0,0.06);
-      cursor:pointer;
-      white-space:nowrap;
-      max-width:180px;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      transition:background .15s ease, box-shadow .15s ease, color .15s ease, border-color .15s ease;
-      outline:none;
+      position: relative;
+      flex: 0 0 calc((100% - 4 * 4px) / 5);   /* 5 tabs per row with 4 gaps */
+      max-width: calc((100% - 4 * 4px) / 5);
+      border-radius: 12px 12px 0 0;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.7);
+      color: #b57a9a;
+      border: 1px solid rgba(0,0,0,0.06);
+      cursor: pointer;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      outline: none;
+      transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        padding 0.15s ease,
+        flex-basis 0.15s ease,
+        max-width 0.15s ease;
     }
+
+    /* Hover: expand horizontally inside its row, push neighbors; row scrolls */
     .video-tab:not(.active):hover {
-      background:rgba(255,182,206,0.25);
-      border-color:rgba(255,130,170,0.35);
-      box-shadow:var(--shadow-soft);
-      cursor:pointer;
+      background: rgba(255,182,206,0.25);
+      border-color: rgba(255,130,170,0.35);
+      box-shadow: var(--shadow-soft);
+      cursor: pointer;
+
+      flex-basis: auto;      /* grow to fit full title */
+      max-width: none;
+      padding-left: 14px;
+      padding-right: 14px;
+
+      text-overflow: clip;   /* no "..." when expanded */
     }
+
+    /* Active tab */
     .video-tab.active {
       background:linear-gradient(135deg, #ffb5d1, #ffd7e6);
       color:#a0315e;
       border-color:rgba(0,0,0,0.12);
       box-shadow:var(--shadow-soft);
     }
+
+    /* Video panel wrapper – stays locked to card width */
     .video-panels {
       position:relative;
       border-radius:14px;
       background:#ffffff;
       box-shadow:var(--shadow-soft);
       padding:10px 10px 12px;
+      width:100%;
+      box-sizing:border-box;
     }
+
+
     .video-panel { display:none; }
     .video-panel.active { display:block; }
 
-/* Footer */
+    /* Footer */
     .site-footer { flex:0 0 auto; display:flex; justify-content:center; align-items:center; padding:16px 12px 26px; }
     .foot-note { font-size:12px; color:#7a3c57; text-align:center; line-height:1.35; background: rgba(255,255,255,.7); border:1px solid #f5d4e3; border-radius:12px; padding:8px 12px; box-shadow: 0 4px 16px rgba(0,0,0,.04); }
 
@@ -1604,21 +1642,35 @@ const TEAM_VIDEOS = {
 
   function renderVideosTabs(videos) {
     if (!videos || !videos.length) return '';
-    const tabs = videos.map(function(v, i) {
-      return '<button class="video-tab' + (i === 0 ? ' active' : '') + '" data-video-index="' + i + '" type="button">' +
-               escapeHtml(v.title) +
-             '</button>';
-    }).join('');
+
+    // Build tabs in rows of 5
+    const rowsHtml = [];
+    for (let start = 0; start < videos.length; start += 5) {
+      const slice = videos.slice(start, start + 5);
+      const rowTabs = slice.map(function(v, idxInRow) {
+        const i = start + idxInRow; // real index in videos[]
+        return '<button class="video-tab' + (i === 0 ? ' active' : '') + '" ' +
+                'data-video-index="' + i + '" type="button">' +
+                escapeHtml(v.title) +
+              '</button>';
+      }).join('');
+      rowsHtml.push('<div class="video-tabs-row">' + rowTabs + '</div>');
+    }
+
+    const tabs = rowsHtml.join('');
+
     const panels = videos.map(function(v, i) {
       return '<div class="video-panel' + (i === 0 ? ' active' : '') + '" data-video-index="' + i + '">' +
-               video(v.title, v.src) +
-             '</div>';
+              video(v.title, v.src) +
+            '</div>';
     }).join('');
+
     return '<section class="videos videos-tabs">' +
-             '<div class="video-tabs" role="tablist">' + tabs + '</div>' +
-             '<div class="video-panels">' + panels + '</div>' +
-           '</section>';
+            '<div class="video-tabs" role="tablist">' + tabs + '</div>' +
+            '<div class="video-panels">' + panels + '</div>' +
+          '</section>';
   }
+
 
   function initVideoTabs() {
     const containers = document.querySelectorAll('.videos-tabs');
