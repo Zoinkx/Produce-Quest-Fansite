@@ -1467,6 +1467,14 @@ const TEAM_VIDEOS = {
       {
         title: '笑顔と本気と夢=No1!; Smile and Truth and Dream = No1!',
         url: 'https://www.youtube.com/watch?v=hgHvJG-kH60&t=5268s'
+      },
+      {
+        title: '笑顔と本気と夢 = No1!! / L!NK♡',
+        url: 'https://www.youtube.com/watch?v=5zpMWo4R2BY&t=2879s'
+      },
+      {
+        title: 'Evaluation 4 - Brand New Quest',
+        url: 'https://www.youtube.com/watch?v=5zpMWo4R2BY&t=2452s'
       }
     ],
     'Team B': [
@@ -1477,8 +1485,16 @@ const TEAM_VIDEOS = {
       {
         title: '「キミをパシャ♡」',
         url: 'https://www.youtube.com/watch?v=P61GGF0trvM&t=5354s'
+      },
+      {
+        title: 'Evaluation 4 - Brand New Quest',
+        url: 'https://www.youtube.com/watch?v=5zpMWo4R2BY&t=3879s'
+      },
+      {
+        title: 'キミをパシャ♡ / きゅりあ♡監視員',
+        url: 'https://www.youtube.com/watch?v=5zpMWo4R2BY&t=3477s'
       }
-    ],
+],
     // 🔽 NEW: Evaluation 4 – Team C videos
     'Team C': [
       {
@@ -1488,6 +1504,14 @@ const TEAM_VIDEOS = {
       {
         title: '『可愛さ∞レベルUP!』',
         url: 'https://www.youtube.com/watch?v=01KBVnr3_4M&t=4625s'
+      },
+      {
+        title: 'Evaluation 4 - Brand New Quest',
+        url: 'https://www.youtube.com/watch?v=5zpMWo4R2BY&t=4453s'
+      },
+      {
+        title: '可愛さ∞レベルUP！ / めろめろ∞くらぶ',
+        url: 'https://www.youtube.com/watch?v=5zpMWo4R2BY&t=4891s'
       }
     ]
   }
@@ -2170,7 +2194,11 @@ function renderList(){
     try {
       if (state.evalRound && state.team && TEAM_VIDEOS[state.evalRound] && TEAM_VIDEOS[state.evalRound][state.team]) {
         const entry = TEAM_VIDEOS[state.evalRound][state.team];
-        const vids = Array.isArray(entry) ? entry : [entry];
+        let vids = Array.isArray(entry) ? entry.slice() : [entry];
+        // For Evaluation 4 Team A/B/C, show newest-added videos first in the grid
+        if (state.evalRound === 'Evaluation 4' && (state.team === 'Team A' || state.team === 'Team B' || state.team === 'Team C')) {
+          vids = vids.slice().reverse();
+        }
         vids.forEach(v => {
           if (!v || !v.url) return;
           const src = toEmbed(v.url);
