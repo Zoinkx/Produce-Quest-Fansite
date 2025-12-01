@@ -717,7 +717,19 @@ input[type="range"]#rate_personality::-moz-range-thumb{
     flex-direction:column;
     align-items:flex-start;
   }
-}</style>
+}
+@media (max-width: 560px){
+  /* Make Eval 3 team cards match Eval 4 sizing on phones */
+  .grid.five .avatar {
+    width: var(--size-4);
+    height: var(--size-4);
+  }
+  .grid.five .namebox {
+    transform: none;
+  }
+}
+
+</style>
 
 <style>
 
@@ -2706,7 +2718,7 @@ document.addEventListener('DOMContentLoaded', function(){
 }
 @media (max-width: 520px) {
   .grid.eval4-three {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 </style>
