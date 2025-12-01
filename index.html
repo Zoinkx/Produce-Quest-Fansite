@@ -107,7 +107,69 @@
     .video h3 { margin:0 0 8px; font-size:22px; color:#b14b7a; }
     .video iframe { width:100%; aspect-ratio: 16/9; border:0; border-radius:14px; box-shadow: var(--shadow); }
 
-    /* Footer */
+    
+    .videos-tabs {
+      margin-top:16px;
+      padding:12px 12px 16px;
+      border-radius:18px;
+      background:rgba(255,255,255,0.8);
+      box-shadow:var(--shadow-soft);
+    }
+    .video-tabs {
+      display:flex;
+      flex-wrap:wrap;
+      gap:4px;
+      margin-bottom:8px;
+      padding-bottom:4px;
+    }
+    .video-tabs::-webkit-scrollbar { height:6px; }
+    .video-tabs::-webkit-scrollbar-track { background:transparent; }
+    .video-tabs::-webkit-scrollbar-thumb {
+      background:rgba(0,0,0,0.12);
+      border-radius:999px;
+    }
+    .video-tab {
+      flex:0 0 auto;
+      border-radius:12px 12px 0 0;
+      padding:6px 10px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      background:rgba(255,255,255,0.7);
+      color:#b57a9a;
+      border:1px solid rgba(0,0,0,0.06);
+      cursor:pointer;
+      white-space:nowrap;
+      max-width:180px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      transition:background .15s ease, box-shadow .15s ease, color .15s ease, border-color .15s ease;
+      outline:none;
+    }
+    .video-tab:not(.active):hover {
+      background:rgba(255,182,206,0.25);
+      border-color:rgba(255,130,170,0.35);
+      box-shadow:var(--shadow-soft);
+      cursor:pointer;
+    }
+    .video-tab.active {
+      background:linear-gradient(135deg, #ffb5d1, #ffd7e6);
+      color:#a0315e;
+      border-color:rgba(0,0,0,0.12);
+      box-shadow:var(--shadow-soft);
+    }
+    .video-panels {
+      position:relative;
+      border-radius:14px;
+      background:#ffffff;
+      box-shadow:var(--shadow-soft);
+      padding:10px 10px 12px;
+    }
+    .video-panel { display:none; }
+    .video-panel.active { display:block; }
+
+/* Footer */
     .site-footer { flex:0 0 auto; display:flex; justify-content:center; align-items:center; padding:16px 12px 26px; }
     .foot-note { font-size:12px; color:#7a3c57; text-align:center; line-height:1.35; background: rgba(255,255,255,.7); border:1px solid #f5d4e3; border-radius:12px; padding:8px 12px; box-shadow: 0 4px 16px rgba(0,0,0,.04); }
 
@@ -1538,6 +1600,46 @@ const TEAM_VIDEOS = {
            '<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ' +
            'allowfullscreen src="'+src+'"></iframe></div>';
   }
+
+
+  function renderVideosTabs(videos) {
+    if (!videos || !videos.length) return '';
+    const tabs = videos.map(function(v, i) {
+      return '<button class="video-tab' + (i === 0 ? ' active' : '') + '" data-video-index="' + i + '" type="button">' +
+               escapeHtml(v.title) +
+             '</button>';
+    }).join('');
+    const panels = videos.map(function(v, i) {
+      return '<div class="video-panel' + (i === 0 ? ' active' : '') + '" data-video-index="' + i + '">' +
+               video(v.title, v.src) +
+             '</div>';
+    }).join('');
+    return '<section class="videos videos-tabs">' +
+             '<div class="video-tabs" role="tablist">' + tabs + '</div>' +
+             '<div class="video-panels">' + panels + '</div>' +
+           '</section>';
+  }
+
+  function initVideoTabs() {
+    const containers = document.querySelectorAll('.videos-tabs');
+    containers.forEach(function(container){
+      const tabs = Array.prototype.slice.call(container.querySelectorAll('.video-tab'));
+      const panels = Array.prototype.slice.call(container.querySelectorAll('.video-panel'));
+      if (!tabs.length || !panels.length) return;
+      tabs.forEach(function(tab){
+        tab.addEventListener('click', function(){
+          const idx = tab.getAttribute('data-video-index');
+          tabs.forEach(function(t){
+            t.classList.toggle('active', t === tab);
+          });
+          panels.forEach(function(panel){
+            panel.classList.toggle('active', panel.getAttribute('data-video-index') === idx);
+          });
+        });
+      });
+    });
+  }
+
 function renderDetail(slug) {
       const c = state.data.contestants.find(x => (x.slug||slugify(x.name))===slug);
       if (!c) { els.detailCard.innerHTML = '<p>Not found.</p>'; return; }
@@ -1648,7 +1750,7 @@ function renderDetail(slug) {
           '</div>'+
         '</section>'+
         ratingsBox+
-        (videos.length ? ('<section class="videos">'+videos.map(v=>video(v.title, v.src)).join('')+'</section>') : '');
+        (videos.length ? renderVideosTabs(videos) : '');
 
 
       // Wire up Favorites button
@@ -1707,6 +1809,7 @@ function renderDetail(slug) {
           });
         }
       })();
+      if (typeof initVideoTabs === 'function') { initVideoTabs(); }
     }
 
 
@@ -2199,15 +2302,35 @@ function renderList(){
         if (state.evalRound === 'Evaluation 4' && (state.team === 'Team A' || state.team === 'Team B' || state.team === 'Team C')) {
           vids = vids.slice().reverse();
         }
-        vids.forEach(v => {
-          if (!v || !v.url) return;
-          const src = toEmbed(v.url);
-          if (src) {
-            els.gridWrap.innerHTML += '<section class="videos">' + video(v.title, src) + '</section>';
+        // If there's only one video (e.g. Evaluation 3 teams), render a single standard video block.
+        if (vids.length === 1) {
+          const v = vids[0];
+          if (v && v.url) {
+            const src = toEmbed(v.url);
+            if (src) {
+              els.gridWrap.innerHTML += '<section class="videos">' + video(v.title, src) + '</section>';
+            }
           }
-        });
+        } else {
+          // Multiple videos -> use the tabbed browser-style UI
+          const tabVideos = [];
+          vids.forEach(v => {
+            if (!v || !v.url) return;
+            const src = toEmbed(v.url);
+            if (src) {
+              tabVideos.push({ title: v.title, src });
+            }
+          });
+          if (tabVideos.length) {
+            els.gridWrap.innerHTML += renderVideosTabs(tabVideos);
+          }
+        }
       }
     } catch (_) {}
+    // Re-bind tab click handlers after rebuilding the grid so team tabs work
+    if (typeof initVideoTabs === 'function') {
+      initVideoTabs();
+    }
 }
 
 
