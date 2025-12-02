@@ -801,6 +801,25 @@ input[type="range"]#rate_personality::-moz-range-thumb{
     margin-top:6px;
   }
 }
+@media (max-width: 768px){
+  /* On small screens, make nested team submenu pop to the left
+     and hide the explicit "All groups" item on desktop only */
+  .filters-panel .team-submenu{
+    left:auto;
+    right:calc(100% - 2px);
+  }
+  .filters-panel .team-option.all-groups-option{
+    display:block;
+  }
+}
+
+@media (min-width: 769px){
+  /* Hide the mobile-only All groups option on larger screens */
+  .filters-panel .team-option.all-groups-option{
+    display:none;
+  }
+}
+
 </style>
 
 <style>
@@ -985,11 +1004,8 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 /* bridge hover gap */
 .eval-item::after{ content:""; position:absolute; top:0; right:-10px; width:14px; height:100%; }
 .team-submenu{ position:absolute; left:calc(100% - 2px); top:0; background:#fff; border:1px solid #f3c2d7; border-radius:12px; box-shadow:var(--shadow); display:none; min-width:150px; }
-.eval-item.submenu-open > .team-submenu{ display:block; }
-@media (max-width: 768px){
-  .team-submenu{ left:auto; right:calc(100% - 2px); }
-}
 .eval-item:hover .team-submenu{ display:block; }
+.eval-item.submenu-open > .team-submenu{ display:block; }
 .team-option{ display:block; width:100%; text-align:left; background:transparent; border:0; padding:8px 12px; cursor:pointer; white-space:nowrap; font-size:15px; color:var(--ink); font-weight:700; }
 .team-option:hover{ background:#ffe6f2; }
 
@@ -1518,8 +1534,6 @@ input[type="range"]#rate_personality::-moz-range-thumb{
     logoImg: document.getElementById('logoImg'),
     backBtn: document.getElementById('backBtn'),
   };
-
-  const isTouchDevice = (('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0));
 
   // Restore logo
   if (state.data.logo_url) els.logoImg.src = state.data.logo_url;
@@ -2165,7 +2179,10 @@ const key = state.sortKey;
 
 
 
-  // --- Build nested Team filter menu (Evaluation -> Team) ---
+  
+// --- Build nested Team filter menu (Evaluation -> Team) ---
+  const isTouchDevice = (('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0));
+
   const EVALUATIONS = {
     'Evaluation 3 Teams': ['Team A','Team B','Team C','Team D','Team E','Team F'],
     'Evaluation 4 Teams': ['Team A','Team B','Team C']
@@ -2287,10 +2304,6 @@ function buildEvalMenu(){
     els.evalTriggerLabel.textContent = 'All Teams';
     menu.classList.remove('open');
     els.evalTrigger.setAttribute('aria-expanded','false');
-    // Reset any open submenus when returning to "All Teams"
-    menu.querySelectorAll('.eval-item.submenu-open').forEach((other) => {
-      other.classList.remove('submenu-open');
-    });
     renderList();
   });
   menu.appendChild(allItem);
@@ -2302,6 +2315,26 @@ function buildEvalMenu(){
 
     const sub = document.createElement('div');
     sub.className = 'team-submenu';
+
+    // On touch/mobile devices, show an explicit "All groups" option at the top
+    if (isTouchDevice) {
+      const allGroupsBtn = document.createElement('button');
+      allGroupsBtn.className = 'team-option all-groups-option';
+      allGroupsBtn.type = 'button';
+      allGroupsBtn.textContent = 'All groups';
+      const evalShortForAll = evalName.replace(/\s*Teams\s*$/i, '');
+      allGroupsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.team = '';
+        state.evalRound = evalShortForAll;
+        state.groupedOverview = true;
+        els.evalTriggerLabel.textContent = evalShortForAll + ' - All Teams';
+        menu.classList.remove('open');
+        els.evalTrigger.setAttribute('aria-expanded','false');
+        renderEvalOverview(evalShortForAll);
+      });
+      sub.appendChild(allGroupsBtn);
+    }
 
     (EVALUATIONS[evalName] || []).forEach(team => {
       const b = document.createElement('button');
@@ -2321,17 +2354,13 @@ function buildEvalMenu(){
         els.evalTriggerLabel.textContent = evalShort + ' - ' + team;
         menu.classList.remove('open');
         els.evalTrigger.setAttribute('aria-expanded','false');
-        // Reset any open submenus when a specific team is chosen
-        menu.querySelectorAll('.eval-item.submenu-open').forEach((other) => {
-          other.classList.remove('submenu-open');
-        });
         renderList();
       });
 
       sub.appendChild(b);
     });
 
-    // Parent item click -> grouped overview (all teams for that evaluation)
+    // Parent item click
     item.addEventListener('click', (e) => {
       // Ignore if the click originated from inside submenu buttons
       if (e.target.closest('.team-submenu') || e.target.classList.contains('team-option')) return;
@@ -2339,30 +2368,27 @@ function buildEvalMenu(){
 
       if (isTouchDevice) {
         // On touch devices:
-        //  - First tap on the parent opens its submenu.
-        //  - Second tap on the same parent opens the grouped overview.
+        // 1st tap on the parent just opens its submenu.
+        // 2nd tap on the same parent opens the grouped overview.
         const isAlreadyOpen = item.classList.contains('submenu-open');
 
-        // Close other submenus
+        // Close any other open submenus
         menu.querySelectorAll('.eval-item.submenu-open').forEach((other) => {
-          if (other !== item) other.classList.remove('submenu-open');
+          if (other !== item) {
+            other.classList.remove('submenu-open');
+          }
         });
 
         if (!isAlreadyOpen) {
-          // First tap: just open submenu
+          // First tap: open this submenu, keep menu open
           item.classList.add('submenu-open');
           return;
         }
 
-        // Second tap: go to grouped overview
-        item.classList.remove('submenu-open');
-        menu.classList.remove('open');
-        els.evalTrigger.setAttribute('aria-expanded','false');
-        renderEvalOverview(evalShort);
-        return;
+        // Second tap on the same parent: fall through to open grouped overview
       }
 
-      // Desktop (non-touch): original single-click behavior
+      // Desktop (hover) or second tap on mobile: open grouped overview
       menu.classList.remove('open');
       els.evalTrigger.setAttribute('aria-expanded','false');
       renderEvalOverview(evalShort);
@@ -2382,23 +2408,12 @@ function buildEvalMenu(){
     const open = !els.evalMenu.classList.contains('open');
     els.evalMenu.classList.toggle('open', open);
     els.evalTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-
-    // If we're closing the menu, also collapse any touch-opened submenus
-    if (!open) {
-      els.evalMenu.querySelectorAll('.eval-item.submenu-open').forEach((item) => {
-        item.classList.remove('submenu-open');
-      });
-    }
   });
   document.addEventListener('click', (e)=>{
     const inside = els.evalMenu.contains(e.target) || els.evalTrigger.contains(e.target);
     if (!inside) {
       els.evalMenu.classList.remove('open');
       els.evalTrigger.setAttribute('aria-expanded','false');
-      // Also reset any open submenus (touch devices)
-      els.evalMenu.querySelectorAll('.eval-item.submenu-open').forEach((item) => {
-        item.classList.remove('submenu-open');
-      });
     }
   });
 
