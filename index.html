@@ -985,6 +985,10 @@ input[type="range"]#rate_personality::-moz-range-thumb{
 /* bridge hover gap */
 .eval-item::after{ content:""; position:absolute; top:0; right:-10px; width:14px; height:100%; }
 .team-submenu{ position:absolute; left:calc(100% - 2px); top:0; background:#fff; border:1px solid #f3c2d7; border-radius:12px; box-shadow:var(--shadow); display:none; min-width:150px; }
+.eval-item.submenu-open > .team-submenu{ display:block; }
+@media (max-width: 768px){
+  .team-submenu{ left:auto; right:calc(100% - 2px); }
+}
 .eval-item:hover .team-submenu{ display:block; }
 .team-option{ display:block; width:100%; text-align:left; background:transparent; border:0; padding:8px 12px; cursor:pointer; white-space:nowrap; font-size:15px; color:var(--ink); font-weight:700; }
 .team-option:hover{ background:#ffe6f2; }
@@ -1514,6 +1518,8 @@ input[type="range"]#rate_personality::-moz-range-thumb{
     logoImg: document.getElementById('logoImg'),
     backBtn: document.getElementById('backBtn'),
   };
+
+  const isTouchDevice = (('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0));
 
   // Restore logo
   if (state.data.logo_url) els.logoImg.src = state.data.logo_url;
@@ -2281,6 +2287,10 @@ function buildEvalMenu(){
     els.evalTriggerLabel.textContent = 'All Teams';
     menu.classList.remove('open');
     els.evalTrigger.setAttribute('aria-expanded','false');
+    // Reset any open submenus when returning to "All Teams"
+    menu.querySelectorAll('.eval-item.submenu-open').forEach((other) => {
+      other.classList.remove('submenu-open');
+    });
     renderList();
   });
   menu.appendChild(allItem);
@@ -2311,6 +2321,10 @@ function buildEvalMenu(){
         els.evalTriggerLabel.textContent = evalShort + ' - ' + team;
         menu.classList.remove('open');
         els.evalTrigger.setAttribute('aria-expanded','false');
+        // Reset any open submenus when a specific team is chosen
+        menu.querySelectorAll('.eval-item.submenu-open').forEach((other) => {
+          other.classList.remove('submenu-open');
+        });
         renderList();
       });
 
@@ -2322,6 +2336,33 @@ function buildEvalMenu(){
       // Ignore if the click originated from inside submenu buttons
       if (e.target.closest('.team-submenu') || e.target.classList.contains('team-option')) return;
       const evalShort = evalName.replace(/\s*Teams\s*$/i, '');
+
+      if (isTouchDevice) {
+        // On touch devices:
+        //  - First tap on the parent opens its submenu.
+        //  - Second tap on the same parent opens the grouped overview.
+        const isAlreadyOpen = item.classList.contains('submenu-open');
+
+        // Close other submenus
+        menu.querySelectorAll('.eval-item.submenu-open').forEach((other) => {
+          if (other !== item) other.classList.remove('submenu-open');
+        });
+
+        if (!isAlreadyOpen) {
+          // First tap: just open submenu
+          item.classList.add('submenu-open');
+          return;
+        }
+
+        // Second tap: go to grouped overview
+        item.classList.remove('submenu-open');
+        menu.classList.remove('open');
+        els.evalTrigger.setAttribute('aria-expanded','false');
+        renderEvalOverview(evalShort);
+        return;
+      }
+
+      // Desktop (non-touch): original single-click behavior
       menu.classList.remove('open');
       els.evalTrigger.setAttribute('aria-expanded','false');
       renderEvalOverview(evalShort);
@@ -2341,12 +2382,23 @@ function buildEvalMenu(){
     const open = !els.evalMenu.classList.contains('open');
     els.evalMenu.classList.toggle('open', open);
     els.evalTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+    // If we're closing the menu, also collapse any touch-opened submenus
+    if (!open) {
+      els.evalMenu.querySelectorAll('.eval-item.submenu-open').forEach((item) => {
+        item.classList.remove('submenu-open');
+      });
+    }
   });
   document.addEventListener('click', (e)=>{
     const inside = els.evalMenu.contains(e.target) || els.evalTrigger.contains(e.target);
     if (!inside) {
       els.evalMenu.classList.remove('open');
       els.evalTrigger.setAttribute('aria-expanded','false');
+      // Also reset any open submenus (touch devices)
+      els.evalMenu.querySelectorAll('.eval-item.submenu-open').forEach((item) => {
+        item.classList.remove('submenu-open');
+      });
     }
   });
 
