@@ -107,6 +107,14 @@
     .video h3 { margin:0 0 8px; font-size:22px; color:#b14b7a; }
     .video iframe { width:100%; aspect-ratio: 16/9; border:0; border-radius:14px; box-shadow: var(--shadow); }
 
+    /* Constrain video width consistently across all sections */
+    .videos .video,
+    .videos-tabs .video {
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
     /* --- Base Desktop Styles for Tabs --- */
     .videos-tabs {
       margin-top:16px;
@@ -164,11 +172,6 @@
       border-color: rgba(255,130,170,0.35);
       box-shadow: var(--shadow-soft);
       cursor: pointer;
-      flex-basis: auto;      
-      max-width: none;
-      padding-left: 14px;
-      padding-right: 14px;
-      text-overflow: clip;   
     }
 
     .video-tab.active {
@@ -202,7 +205,7 @@
       .videos-tabs {
         padding: 8px 6px 10px;
         border-radius: 14px;
-        overflow: visible; /* Allow content to fit */
+        overflow: hidden;
       }
 
       .video-tabs-row {
