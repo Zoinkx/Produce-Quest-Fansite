@@ -3,80 +3,26 @@
     "Ruka":  "#f06292",
     "Mimi":  "#64b5f6",
     "Karen": "#ffd54f",
-    "Ayu":   "#9b5de5",
-    "Rena":  "#7dd78b"
+    "Ayu":   "#9b5de5"
   },
-
   "segments": [
     {
-      "start": 0.0,
-      "end": 6.2,
+      "start": 4453.0,
+      "end": 4459.2,
       "singer": "Ruka",
-      "text": "踏み出す瞬間に\n心が高鳴るの"
+      "text": "Example line 1"
     },
     {
-      "start": 6.2,
-      "end": 11.5,
+      "start": 4459.2,
+      "end": 4465.1,
       "singer": "Mimi",
-      "text": "光を追いかけて\n未来へ走り出す"
+      "text": "Example line 2"
     },
     {
-      "start": 11.5,
-      "end": 17.9,
+      "start": 4465.1,
+      "end": 4471.5,
       "singer": "Karen",
-      "text": "何度も迷って\n何度も涙して"
-    },
-    {
-      "start": 17.9,
-      "end": 23.6,
-      "singer": "Ayu",
-      "text": "それでも掴みたい\nずっと夢見たステージ"
-    },
-    {
-      "start": 23.6,
-      "end": 29.0,
-      "singer": "Rena",
-      "text": "一緒に歩いたね\nここまで来た道を"
-    },
-
-    /* Pre-Chorus */
-    {
-      "start": 29.0,
-      "end": 34.0,
-      "singer": "Ruka",
-      "text": "震える手をぎゅっと\n握りしめて"
-    },
-    {
-      "start": 34.0,
-      "end": 39.2,
-      "singer": "Mimi",
-      "text": "大丈夫だよって\n笑ってみせるよ"
-    },
-
-    /* Chorus – Group style lines */
-    {
-      "start": 39.2,
-      "end": 45.0,
-      "singer": "Ruka",
-      "text": "Brand New Quest！\n高く羽ばたける"
-    },
-    {
-      "start": 45.0,
-      "end": 50.5,
-      "singer": "Mimi",
-      "text": "Brand New Quest！\n夢をつかみに行こう"
-    },
-    {
-      "start": 50.5,
-      "end": 56.0,
-      "singer": "Karen",
-      "text": "何度倒れても\n立ち上がる勇気で"
-    },
-    {
-      "start": 56.0,
-      "end": 62.0,
-      "singer": "Ayu",
-      "text": "ここから始まるよ\n私たちの物語"
+      "text": "Example line 3"
     }
   ]
 }
